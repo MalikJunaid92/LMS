@@ -7,6 +7,7 @@ import jwt, { Secret } from "jsonwebtoken";
 import ejs from "ejs";
 import path from "path";
 import sendMail from "../utilis/sendMail";
+import { sendToken } from "../utilis/jwt";
 // register User
 
 interface IRegisteration {
@@ -101,6 +102,53 @@ export const activateUser = catchAsyncError(
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+// Login user
+interface ILoginUser {
+  email: string;
+  password: string;
+}
+export const LoginUser = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email, password } = req.body as ILoginUser;
+      if (!email || !password) {
+        return next(new ErrorHandler("Please enter email or password", 400));
+      }
+      const user = await userModel.findOne({ email }).select("+password");
+      if (!user) {
+        return next(new ErrorHandler("Invalid email or password", 400));
+      }
+      const passwordMatch = await user.comparePassword(password);
+      if (!passwordMatch) {
+        return next(new ErrorHandler("Invalid email or password", 400));
+      }
+      sendToken(user, 200, res);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+// logout USer
+interface LogoutResponse {
+  success: boolean;
+  message: string;
+}
+
+export const LogoutUser = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      res.cookie("access_token", "", { maxAge: 1 });
+      res.cookie("refresh_token", "", { maxAge: 1 });
+
+      res.status(201).json({
+        success: true,
+        message: "Log out successful!",
+      });
+    } catch (error) {
+      return next(new ErrorHandler((error as Error).message, 500));
     }
   }
 );
