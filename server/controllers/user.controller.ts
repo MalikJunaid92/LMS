@@ -8,6 +8,7 @@ import ejs from "ejs";
 import path from "path";
 import sendMail from "../utilis/sendMail";
 import { sendToken } from "../utilis/jwt";
+import { redisClient } from "../utilis/redis";
 // register User
 
 interface IRegisteration {
@@ -136,19 +137,45 @@ interface LogoutResponse {
   success: boolean;
   message: string;
 }
-
+// logout user
 export const LogoutUser = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      res.cookie("access_token", "", { maxAge: 1 });
-      res.cookie("refresh_token", "", { maxAge: 1 });
+      // Check if the user is authenticated
+      if (!req.user || !req.user._id) {
+        return next(new ErrorHandler("User not authenticated", 401));
+      }
 
-      res.status(201).json({
+      const userId = req.user._id.toString();
+
+      // Attempt to delete the user's session from Redis
+      const redisResponse = await redisClient.del(userId);
+
+      // Log out message depending on Redis response
+      const message =
+        redisResponse === 1
+          ? "Log out successful!"
+          : "Log out successful, but no session found in Redis.";
+
+      // Clear the cookies
+      res.clearCookie("access_token", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+      });
+      res.clearCookie("refresh_token", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+      });
+
+      // Send success response
+      res.status(200).json({
         success: true,
-        message: "Log out successful!",
+        message,
       });
     } catch (error) {
       return next(new ErrorHandler((error as Error).message, 500));
     }
   }
 );
+
+
