@@ -8,7 +8,7 @@ import ejs from "ejs";
 import path from "path";
 import sendMail from "../utilis/sendMail";
 import { sendToken } from "../utilis/jwt";
-import { redisClient } from "../utilis/redis";
+// import { redis} from "../utilis/redis";
 // register User
 
 interface IRegisteration {
@@ -132,11 +132,7 @@ export const LoginUser = catchAsyncError(
     }
   }
 );
-// logout USer
-interface LogoutResponse {
-  success: boolean;
-  message: string;
-}
+
 // logout user
 export const LogoutUser = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -145,17 +141,6 @@ export const LogoutUser = catchAsyncError(
       if (!req.user || !req.user._id) {
         return next(new ErrorHandler("User not authenticated", 401));
       }
-
-      const userId = req.user._id.toString();
-
-      // Attempt to delete the user's session from Redis
-      const redisResponse = await redisClient.del(userId);
-
-      // Log out message depending on Redis response
-      const message =
-        redisResponse === 1
-          ? "Log out successful!"
-          : "Log out successful, but no session found in Redis.";
 
       // Clear the cookies
       res.clearCookie("access_token", {
@@ -170,12 +155,11 @@ export const LogoutUser = catchAsyncError(
       // Send success response
       res.status(200).json({
         success: true,
-        message,
+        message: "Logout successful!",
       });
     } catch (error) {
       return next(new ErrorHandler((error as Error).message, 500));
     }
   }
 );
-
 
