@@ -7,9 +7,13 @@ import jwt, { JwtPayload, Secret } from "jsonwebtoken";
 import ejs from "ejs";
 import path from "path";
 import sendMail from "../utilis/sendMail";
-import { accessTokenOptions, refreshTokenOptions, sendToken } from "../utilis/jwt";
+import {
+  accessTokenOptions,
+  refreshTokenOptions,
+  sendToken,
+} from "../utilis/jwt";
+import { getUserById } from "../services/user.service";
 // import { redis} from "../utilis/redis";
-
 
 // register User
 
@@ -165,14 +169,12 @@ export const LogoutUser = catchAsyncError(
   }
 );
 
-
-
 // update access token
 export const updateAccessToken = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const refresh_token = req.cookies.refresh_token as string;
-      
+
       if (!refresh_token) {
         return next(new ErrorHandler("Refresh token is missing", 400));
       }
@@ -183,14 +185,14 @@ export const updateAccessToken = catchAsyncError(
       ) as JwtPayload;
 
       const message = "Could not refresh token";
-      
+
       if (!decoded) {
         return next(new ErrorHandler(message, 404));
       }
 
       // Fetch the user session from the database using the decoded ID
       const userSession = await userModel.findById(decoded.id);
-      
+
       if (!userSession) {
         return next(new ErrorHandler(message, 404));
       }
@@ -199,20 +201,33 @@ export const updateAccessToken = catchAsyncError(
       const newAccessToken = jwt.sign(
         { id: userSession._id },
         process.env.ACCESS_TOKEN as string,
-        { expiresIn:  "5m" }
+        { expiresIn: "5m" }
       );
       const newRefreshToken = jwt.sign(
         { id: userSession._id },
         process.env.REFRESH_TOKEN as string,
-        { expiresIn:  "30d" }
+        { expiresIn: "30d" }
       );
 
-      res.cookie("access_token",newAccessToken,accessTokenOptions)
-      res.cookie("refresh_token",newRefreshToken,refreshTokenOptions)
+      res.cookie("access_token", newAccessToken, accessTokenOptions);
+      res.cookie("refresh_token", newRefreshToken, refreshTokenOptions);
       res.status(200).json({
-        status:"success",
-        newAccessToken
-      })
+        status: "success",
+        newAccessToken,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+// get user info
+
+export const getUserInfo = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = (req.user?._id )as string;
+      getUserById(userId, res);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
