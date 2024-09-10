@@ -208,7 +208,6 @@ export const updateAccessToken = catchAsyncError(
         process.env.REFRESH_TOKEN as string,
         { expiresIn: "30d" }
       );
-
       res.cookie("access_token", newAccessToken, accessTokenOptions);
       res.cookie("refresh_token", newRefreshToken, refreshTokenOptions);
       res.status(200).json({
@@ -226,8 +225,98 @@ export const updateAccessToken = catchAsyncError(
 export const getUserInfo = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = (req.user?._id )as string;
+      const userId = req.user?._id as string;
       getUserById(userId, res);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+// social auth
+interface IsocialAuth {
+  name: string;
+  email: string;
+  avatar: string;
+}
+export const socialAuth = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { name, email, avatar } = req.body as IsocialAuth;
+      const user = await userModel.findOne({ email });
+      if (!user) {
+        const newUser = await userModel.create({ name, email, avatar });
+        sendToken(newUser, 200, res);
+      } else {
+        sendToken(user, 200, res);
+      }
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+// update user info
+
+interface IUpdateUserInfo {
+  name?: string;
+  email?: string;
+}
+
+export const updateUserInfo = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { name, email } = req.body as IUpdateUserInfo;
+      const userId = req.user?._id as string;
+      const user = await userModel.findById(userId);
+      if (user && email) {
+        const isEmailexist = await userModel.findOne({ email });
+        if (!isEmailexist) {
+          return next(new ErrorHandler("Email already exist", 400));
+        }
+        user.email = email;
+      }
+      if (name && user) {
+        user.name = name;
+      }
+      await user?.save();
+
+      res.status(201).json({
+        success: true,
+        user,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+// update password
+
+interface IUpdatePassword {
+  oldPassword: string;
+  newPassword: string;
+}
+export const updateUserPassword = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { oldPassword, newPassword } = req.body as IUpdatePassword;
+      if(!oldPassword || !newPassword){
+        return next(new ErrorHandler("Old password and new password are required", 400));
+      }
+      const user = await userModel.findById(req.user?._id).select("+password");
+
+      if (user?.password === undefined) {
+        return next(new ErrorHandler("Invalid User", 400));
+      }
+      const isPasswordMatch = await user?.comparePassword(oldPassword);
+      if (!isPasswordMatch) {
+        return next(new ErrorHandler("Invalid Old Password", 400));
+      }
+      user.password = newPassword;
+      await user.save();
+      res.status(201).json({
+        success: true,
+        user,
+      });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
