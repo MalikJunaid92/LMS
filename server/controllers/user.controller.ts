@@ -4,8 +4,8 @@ import userModel, { IUser } from "../models/user.model";
 import ErrorHandler from "../utilis/ErrorHandler";
 import { catchAsyncError } from "../middleware/catchAsyncError";
 import jwt, { JwtPayload, Secret } from "jsonwebtoken";
-import ejs from "ejs";
-import path from "path";
+// import ejs from "ejs";
+// import path from "path";
 import sendMail from "../utilis/sendMail";
 import {
   accessTokenOptions,
@@ -13,6 +13,7 @@ import {
   sendToken,
 } from "../utilis/jwt";
 import { getUserById } from "../services/user.service";
+import cloudinary from "cloudinary";
 // import { redis} from "../utilis/redis";
 
 // register User
@@ -201,7 +202,7 @@ export const updateAccessToken = catchAsyncError(
       const newAccessToken = jwt.sign(
         { id: userSession._id },
         process.env.ACCESS_TOKEN as string,
-        { expiresIn: "5m" }
+        { expiresIn: "50m" }
       );
       const newRefreshToken = jwt.sign(
         { id: userSession._id },
@@ -299,8 +300,10 @@ export const updateUserPassword = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { oldPassword, newPassword } = req.body as IUpdatePassword;
-      if(!oldPassword || !newPassword){
-        return next(new ErrorHandler("Old password and new password are required", 400));
+      if (!oldPassword || !newPassword) {
+        return next(
+          new ErrorHandler("Old password and new password are required", 400)
+        );
       }
       const user = await userModel.findById(req.user?._id).select("+password");
 
@@ -317,6 +320,65 @@ export const updateUserPassword = catchAsyncError(
         success: true,
         user,
       });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+// update user profile
+interface IUpdateProfileImage {
+  avatar: string;
+}
+
+export const updateProfileImage = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { avatar } = req.body as IUpdateProfileImage;
+      const userId = req.user?._id;
+      const user = await userModel.findById(userId);
+
+      if (avatar && user) {
+        // Check if user already has an avatar to delete
+        if (user.avatar?.public_id) {
+          await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+        
+
+        // Upload new avatar to Cloudinary
+        const myCloud = await cloudinary.v2.uploader.upload(avatar, {
+          folder: "avatars",
+          width: 150,
+          crop: "scale",
+        });
+
+        // Update user's avatar
+        user.avatar = {
+          public_id: myCloud.public_id,
+          url: myCloud.secure_url,
+        };
+      }else{
+        const myCloud = await cloudinary.v2.uploader.upload(avatar, {
+          folder: "avatars",
+          width: 150,
+          crop: "scale",
+        });
+
+        // Update user's avatar
+        user.avatar = {
+          public_id: myCloud.public_id,
+          url: myCloud.secure_url,
+        };
+      }
+        // Save updated user
+        await user.save();
+
+        // Respond with success and updated user
+        return res.status(201).json({
+          success: true,
+          user,
+        });
+      }
+
+   
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
