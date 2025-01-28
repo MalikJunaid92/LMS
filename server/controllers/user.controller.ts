@@ -1,58 +1,61 @@
 require("dotenv").config();
 import { Request, Response, NextFunction } from "express";
 import userModel, { IUser } from "../models/user.model";
+import { CatchAsyncError } from "../middleware/catchAsyncError";
 import ErrorHandler from "../utilis/ErrorHandler";
-import { catchAsyncError } from "../middleware/catchAsyncError";
 import jwt, { JwtPayload, Secret } from "jsonwebtoken";
-// import ejs from "ejs";
-// import path from "path";
-import sendMail from "../utilis/sendMail";
+import path from "path";
+import ejs from "ejs";
+import { sendMail } from "../utilis/sendMail";
 import {
   accessTokenOptions,
   refreshTokenOptions,
   sendToken,
 } from "../utilis/jwt";
+import { redis } from "../utilis/redis";
 import { getUserById } from "../services/user.service";
 import cloudinary from "cloudinary";
-// import { redis} from "../utilis/redis";
 
-// register User
 
-interface IRegisteration {
-  name: string;
+
+
+// register user
+interface IRegistrationBody {
   email: string;
   password: string;
+  name: string;
   avatar?: string;
 }
-export const registerUser = catchAsyncError(
+
+export const registerUser = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { name, email, password } = req.body;
+      const { email, password, name } = req.body;
       const emailExist = await userModel.findOne({ email });
       if (emailExist) {
         return next(new ErrorHandler("Email already exist", 400));
       }
-      const user: IRegisteration = {
-        name,
+      const user: IRegistrationBody = {
         email,
         password,
+        name,
       };
       const activationToken = createActivationToken(user);
       const activationCode = activationToken.activationCode;
       const data = { user: { name: user.name }, activationCode };
-      // const html = await ejs.renderFile(
-      //   path.join(__dirname, "../mails/activation-mail.ejs")
-      // );
+      const html = await ejs.renderFile(
+        path.join(__dirname, "../mails/activation-mail.ejs"),
+        data
+      );
       try {
         await sendMail({
           email: user.email,
-          subject: "Activate your account",
+          subject: "Account Activation",
           template: "activation-mail.ejs",
           data,
         });
-        res.status(201).json({
-          status: true,
-          message: `Please check your email: ${user.email} to activate your account`,
+        return res.status(201).json({
+          message: `Please check your email:${user.email} to activate your account`,
           activationToken: activationToken.token,
         });
       } catch (error: any) {
@@ -64,73 +67,67 @@ export const registerUser = catchAsyncError(
   }
 );
 interface IActivationToken {
-  token: string;
   activationCode: string;
+  token: string;
 }
 export const createActivationToken = (user: any): IActivationToken => {
   const activationCode = Math.floor(1000 + Math.random() * 9000).toString();
   const token = jwt.sign(
     { user, activationCode },
-    process.env.ACTIVATION_TOKEN_SECRET as Secret,
+    process.env.ACTIVATION_SECRET as Secret,
     {
-      expiresIn: "1h",
+      expiresIn: "10m",
     }
   );
-  return { token, activationCode };
+  return { activationCode, token };
 };
-// activate user
-interface IActivationRequest {
-  activation_token: string;
+
+// activate user account
+interface IActivationBody {
   activation_code: string;
+  activation_token: string;
 }
-export const activateUser = catchAsyncError(
+export const activateAccount = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { activation_token, activation_code } =
-        req.body as IActivationRequest;
+      const { activation_code, activation_token } = req.body as IActivationBody;
       const newUser: { user: IUser; activationCode: string } = jwt.verify(
         activation_token,
-        process.env.ACTIVATION_TOKEN_SECRET as string
+        process.env.ACTIVATION_SECRET as string
       ) as { user: IUser; activationCode: string };
       if (newUser.activationCode !== activation_code) {
-        return next(new ErrorHandler("Email already exist", 400));
+        return next(new ErrorHandler("Invalid activation code", 400));
       }
-      const { email, name, password } = newUser.user;
-      const emailExist = await userModel.findOne({ email });
-      if (emailExist) {
-        return next(new ErrorHandler("Email already exist", 400));
+      const { name, email, password } = newUser.user;
+      const userExist = await userModel.findOne({ email });
+      if (userExist) {
+        return next(new ErrorHandler("User already exist", 400));
       }
-      const user = await userModel.create({
-        name,
-        email,
-        password,
-      });
-      res.status(201).json({
-        success: true,
-      });
+      const user = userModel.create({ name, email, password });
+      return res.status(201).json({ success: true });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
   }
 );
-// Login user
-interface ILoginUser {
+// login user
+interface ILoginBody {
   email: string;
   password: string;
 }
-export const LoginUser = catchAsyncError(
+export const loginUser = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { email, password } = req.body as ILoginUser;
+      const { email, password } = req.body as ILoginBody;
       if (!email || !password) {
-        return next(new ErrorHandler("Please enter email or password", 400));
+        return next(new ErrorHandler("Please enter email and password", 400));
       }
       const user = await userModel.findOne({ email }).select("+password");
       if (!user) {
         return next(new ErrorHandler("Invalid email or password", 400));
       }
-      const passwordMatch = await user.comparePassword(password);
-      if (!passwordMatch) {
+      const isPasswordMatch = await user.comparePassword(password);
+      if (!isPasswordMatch) {
         return next(new ErrorHandler("Invalid email or password", 400));
       }
       sendToken(user, 200, res);
@@ -139,45 +136,42 @@ export const LoginUser = catchAsyncError(
     }
   }
 );
-
 // logout user
-export const LogoutUser = catchAsyncError(
+export const logoutUser = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // Check if the user is authenticated
-      if (!req.user || !req.user._id) {
-        return next(new ErrorHandler("User not authenticated", 401));
+      // Clear cookies
+      res.cookie("access_token", "", { maxAge: 1 });
+      res.cookie("refresh_token", "", { maxAge: 1 });
+
+      // Get user ID
+      const userId = req.user?._id || req.user?.id || "";
+
+      // Check if userId exists
+      if (!userId) {
+        return next(new ErrorHandler("User is not authenticated", 400));
       }
 
-      // Clear the cookies
-      res.clearCookie("access_token", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-      });
-      res.clearCookie("refresh_token", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-      });
+      // Delete user session from Redis
+      await redis.del(userId);
 
-      // Send success response
       res.status(200).json({
         success: true,
-        message: "Logout successful!",
+        message: "Logged out successfully",
       });
-    } catch (error) {
-      return next(new ErrorHandler((error as Error).message, 500));
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
     }
   }
 );
-
 // update access token
-export const updateAccessToken = catchAsyncError(
+export const updateAccessToken = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const refresh_token = req.cookies.refresh_token as string;
 
       if (!refresh_token) {
-        return next(new ErrorHandler("Refresh token is missing", 400));
+        return next(new ErrorHandler("Refresh token not provided", 400));
       }
 
       const decoded = jwt.verify(
@@ -185,35 +179,40 @@ export const updateAccessToken = catchAsyncError(
         process.env.REFRESH_TOKEN as string
       ) as JwtPayload;
 
-      const message = "Could not refresh token";
-
       if (!decoded) {
-        return next(new ErrorHandler(message, 404));
+        return next(new ErrorHandler("Invalid refresh token", 400));
       }
 
-      // Fetch the user session from the database using the decoded ID
-      const userSession = await userModel.findById(decoded.id);
+      const session = await redis.get(decoded.id);
 
-      if (!userSession) {
-        return next(new ErrorHandler(message, 404));
+      if (!session) {
+        return next(new ErrorHandler("Session expired or not found", 400));
       }
 
-      // Generate a new access token for the user
-      const newAccessToken = jwt.sign(
-        { id: userSession._id },
+      const user = JSON.parse(session);
+
+      const accessToken = jwt.sign(
+        { id: user._id },
         process.env.ACCESS_TOKEN as string,
-        { expiresIn: "50m" }
+        {
+          expiresIn: "5m",
+        }
       );
+
       const newRefreshToken = jwt.sign(
-        { id: userSession._id },
+        { id: user._id },
         process.env.REFRESH_TOKEN as string,
-        { expiresIn: "30d" }
+        {
+          expiresIn: "3d",
+        }
       );
-      res.cookie("access_token", newAccessToken, accessTokenOptions);
+      req.user = user;
+      res.cookie("access_token", accessToken, accessTokenOptions);
       res.cookie("refresh_token", newRefreshToken, refreshTokenOptions);
+
       res.status(200).json({
-        status: "success",
-        newAccessToken,
+        success: true,
+        accessToken,
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
@@ -221,29 +220,35 @@ export const updateAccessToken = catchAsyncError(
   }
 );
 
-// get user info
+// get user by id
 
-export const getUserInfo = catchAsyncError(
+export const getUserInfo = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = req.user?._id as string;
+      const userId = req.user?._id;
+
+      if (!userId || typeof userId !== "string") {
+        return next(new ErrorHandler("User not authenticated", 401));
+      }
+
+      // Call getUserById with the correct parameters (userId as string)
       getUserById(userId, res);
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      next(new ErrorHandler(error.message, 400));
     }
   }
 );
 
 // social auth
-interface IsocialAuth {
+interface ISocialAuthBody {
   name: string;
   email: string;
   avatar: string;
 }
-export const socialAuth = catchAsyncError(
+export const socialAuth = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { name, email, avatar } = req.body as IsocialAuth;
+      const { name, email, avatar } = req.body as ISocialAuthBody;
       const user = await userModel.findOne({ email });
       if (!user) {
         const newUser = await userModel.create({ name, email, avatar });
@@ -252,135 +257,158 @@ export const socialAuth = catchAsyncError(
         sendToken(user, 200, res);
       }
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      next(new ErrorHandler(error.message, 400));
     }
   }
 );
 // update user info
-
-interface IUpdateUserInfo {
-  name?: string;
-  email?: string;
+interface IUpdateUserBody {
+  name: string;
+  email: string;
 }
-
-export const updateUserInfo = catchAsyncError(
+export const updateUserInfo = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { name, email } = req.body as IUpdateUserInfo;
-      const userId = req.user?._id as string;
+      const { name, email } = req.body as IUpdateUserBody;
+      const userId = req.user?._id;
+
+      if (!userId || typeof userId !== "string") {
+        return next(new ErrorHandler("User not authenticated", 401));
+      }
+
+      // Find the user by ID
       const user = await userModel.findById(userId);
-      if (user && email) {
-        const isEmailexist = await userModel.findOne({ email });
-        if (!isEmailexist) {
-          return next(new ErrorHandler("Email already exist", 400));
+      if (!user) {
+        return next(new ErrorHandler("User not found", 404));
+      }
+
+      // Check if the email is already in use by another user
+      if (email && email !== user.email) {
+        const emailExist = await userModel.findOne({ email });
+        if (emailExist) {
+          return next(new ErrorHandler("Email already exists", 400));
         }
         user.email = email;
       }
-      if (name && user) {
+
+      // Update the name if provided
+      if (name) {
         user.name = name;
       }
-      await user?.save();
 
-      res.status(201).json({
+      // Save the updated user
+      await user.save();
+
+      // Update the user in Redis
+      await redis.set(userId, JSON.stringify(user));
+
+      // Send the response
+      res.status(200).json({
         success: true,
         user,
       });
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      next(new ErrorHandler(error.message, 400));
     }
   }
 );
-// update password
 
-interface IUpdatePassword {
+// update user password
+interface IUpdatePasswor {
   oldPassword: string;
   newPassword: string;
 }
-export const updateUserPassword = catchAsyncError(
+export const updatePassword = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { oldPassword, newPassword } = req.body as IUpdatePassword;
+      const { oldPassword, newPassword } = req.body as IUpdatePasswor;
+
       if (!oldPassword || !newPassword) {
-        return next(
-          new ErrorHandler("Old password and new password are required", 400)
-        );
+        return next(new ErrorHandler("Please enter old and new password", 400));
       }
+
+      // Ensure password field is selected
       const user = await userModel.findById(req.user?._id).select("+password");
 
-      if (user?.password === undefined) {
-        return next(new ErrorHandler("Invalid User", 400));
+      if (!user) {
+        return next(new ErrorHandler("User not found", 404));
       }
-      const isPasswordMatch = await user?.comparePassword(oldPassword);
+
+      if (!user.password) {
+        return next(new ErrorHandler("Password update not allowed for social auth users", 400));
+      }
+
+      const isPasswordMatch = await user.comparePassword(oldPassword);
       if (!isPasswordMatch) {
-        return next(new ErrorHandler("Invalid Old Password", 400));
+        return next(new ErrorHandler("Invalid old password", 400));
       }
+
       user.password = newPassword;
       await user.save();
+      await redis.set(req.user?._id as string, JSON.stringify(user));
       res.status(201).json({
         success: true,
         user,
       });
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      next(new ErrorHandler(error.message, 400));
     }
   }
 );
-// update user profile
-interface IUpdateProfileImage {
+// update user avatar
+interface IUpdateAvatar {
   avatar: string;
 }
-
-export const updateProfileImage = catchAsyncError(
+export const updateProfileImage = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { avatar } = req.body as IUpdateProfileImage;
-      const userId = req.user?._id;
+      const { avatar } = req.body as IUpdateAvatar;
+      const userId = req.user?._id?.toString(); // Ensure userId is a string
+
+      if (!userId) {
+        return next(new ErrorHandler("User ID not found in request", 400));
+      }
+
       const user = await userModel.findById(userId);
 
-      if (avatar && user) {
-        // Check if user already has an avatar to delete
-        if (user.avatar?.public_id) {
-          await cloudinary.v2.uploader.destroy(user.avatar.public_id);
-        
-
-        // Upload new avatar to Cloudinary
-        const myCloud = await cloudinary.v2.uploader.upload(avatar, {
-          folder: "avatars",
-          width: 150,
-          crop: "scale",
-        });
-
-        // Update user's avatar
-        user.avatar = {
-          public_id: myCloud.public_id,
-          url: myCloud.secure_url,
-        };
-      }else{
-        const myCloud = await cloudinary.v2.uploader.upload(avatar, {
-          folder: "avatars",
-          width: 150,
-          crop: "scale",
-        });
-
-        // Update user's avatar
-        user.avatar = {
-          public_id: myCloud.public_id,
-          url: myCloud.secure_url,
-        };
-      }
-        // Save updated user
-        await user.save();
-
-        // Respond with success and updated user
-        return res.status(201).json({
-          success: true,
-          user,
-        });
+      if (!user) {
+        return next(new ErrorHandler("User not found", 404));
       }
 
-   
+      if (!avatar) {
+        return next(new ErrorHandler("Avatar is required", 400));
+      }
+
+      // Delete existing avatar if present
+      if (user.avatar?.public_id) {
+        await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+      }
+
+      // Upload new avatar to Cloudinary
+      const myCloud = await cloudinary.v2.uploader.upload(avatar, {
+        folder: "avatars",
+        width: 150,
+        crop: "scale",
+      });
+
+      // Update user's avatar
+      user.avatar = {
+        public_id: myCloud.public_id,
+        url: myCloud.secure_url,
+      };
+
+      // Save updated user
+      await user.save();
+      await redis.set(userId, JSON.stringify(user)); // Ensure userId is a string
+
+      // Respond with success and updated user
+      return res.status(201).json({
+        success: true,
+        user,
+      });
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message || "Server Error", 500));
     }
   }
 );
+
