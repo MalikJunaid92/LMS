@@ -9,6 +9,7 @@ import mongoose from "mongoose";
 import path from "path";
 import ejs from "ejs";
 import { sendMail } from "../utilis/sendMail";
+import NotificationModel from "../models/notificationModel";
 // upload course
 export const uploadCourse = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -187,6 +188,11 @@ export const addQuestion = CatchAsyncError(
       } else {
         courseContent.questions = [newQuestion];
       }
+      await NotificationModel.create({
+        user: req.user?._id,
+        title: "New Question Recieved",
+        message: `You have a new question in ${courseContent.title}`,
+      });
       await course?.save();
       res.status(201).json({
         success: true,
@@ -238,6 +244,11 @@ export const addAnswer = CatchAsyncError(
       await course?.save();
       if (req.user?.id === question.user._id) {
         // create a notification for the user
+        await NotificationModel.create({
+          user: req.user?._id,
+          title: "New Question Reply Recieved",
+          message: `You have a new question reply in ${courseContent.title}`,
+        });
       } else {
         const data = {
           name: question.user.name,
@@ -349,7 +360,7 @@ export const addReviewReply = CatchAsyncError(
         comment,
       };
       review.commentReplies.push(newReply);
-      if(!review.commentReplies) {
+      if (!review.commentReplies) {
         review.commentReplies = [];
       }
       await course.save();

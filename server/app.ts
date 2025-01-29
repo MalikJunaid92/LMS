@@ -5,6 +5,8 @@ import cors from "cors";
 import { ErrorMiddleware } from "./middleware/error";
 import userRouter from "./routes/user.routes";
 import courseRouter from "./routes/course.route";
+import orderRouter from "./routes/order.routes";
+import notificationRouter from "./routes/notification.route";
 // body-parser
 app.use(express.json({ limit: "50mb" }));
 
@@ -19,7 +21,7 @@ app.use(
 );
 // routes
 app.use("/api/v1/users", userRouter);
-app.use("/api/v1/", courseRouter);
+app.use("/api/v1/", courseRouter,orderRouter,notificationRouter);
 
 // error middleware
 app.use(ErrorMiddleware);
