@@ -9,7 +9,7 @@ import CourseModel, { ICourse } from "../models/course.model";
 import { sendMail } from "../utilis/sendMail";
 import NotificationModel from "../models/notificationModel";
 import { redis } from "../utilis/redis";
-import { newOrder } from "../services/order.service";
+import { getAllOrderService, newOrder } from "../services/order.service";
 
 // create order
 export const createOrder = CatchAsyncError(
@@ -89,6 +89,17 @@ export const createOrder = CatchAsyncError(
       newOrder(data, res, next);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+// get all orders --> only for admin
+export const getAllOrders = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      getAllOrderService(res);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );

@@ -13,11 +13,12 @@ import {
   sendToken,
 } from "../utilis/jwt";
 import { redis } from "../utilis/redis";
-import { getUserById } from "../services/user.service";
+import {
+  getAllUsersService,
+  getUserById,
+  updateUserRoleService,
+} from "../services/user.service";
 import cloudinary from "cloudinary";
-
-
-
 
 // register user
 interface IRegistrationBody {
@@ -186,7 +187,7 @@ export const updateAccessToken = CatchAsyncError(
       const session = await redis.get(decoded.id);
 
       if (!session) {
-        return next(new ErrorHandler("Session expired or not found", 400));
+        return next(new ErrorHandler("Please login to access this resources", 400));
       }
 
       const user = JSON.parse(session);
@@ -210,6 +211,7 @@ export const updateAccessToken = CatchAsyncError(
       res.cookie("access_token", accessToken, accessTokenOptions);
       res.cookie("refresh_token", newRefreshToken, refreshTokenOptions);
 
+      await redis.set(user._id, JSON.stringify(user), "EX", 604800); // 7 days expire
       res.status(200).json({
         success: true,
         accessToken,
@@ -335,7 +337,12 @@ export const updatePassword = CatchAsyncError(
       }
 
       if (!user.password) {
-        return next(new ErrorHandler("Password update not allowed for social auth users", 400));
+        return next(
+          new ErrorHandler(
+            "Password update not allowed for social auth users",
+            400
+          )
+        );
       }
 
       const isPasswordMatch = await user.comparePassword(oldPassword);
@@ -412,3 +419,43 @@ export const updateProfileImage = CatchAsyncError(
   }
 );
 
+// get all users --> only admin
+export const getAllUsers = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      getAllUsersService(res);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
+// update user role --> only admin
+export const updateUserRole = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id, role } = req.body;
+      updateUserRoleService(id, role, res);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
+// delete user --> only admin
+export const deleteUser = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const user = await userModel.findById(req.params.id);
+      if (!user) {
+        return next(new ErrorHandler("User not found", 404));
+      }
+      await user.deleteOne({ _id: req.params.id });
+      await redis.del(req.params.id);
+      res.status(200).json({
+        success: true,
+        message: "User deleted successfully",
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+      
+    }
+  })
