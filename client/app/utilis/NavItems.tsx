@@ -53,6 +53,9 @@ const NavItems: React.FC<Props> = ({ activeItem, isMobile }) => {
       {isMobile && (
         <div className="800px:hidden mt-5">
           <div className="w-full text-center py-6">
+            <Link href={"/"} passHref>
+            <span className={`text-[25px] font-Poppins font-[500] text-black dark:text-white`}>ELearning</span></Link>
+          </div>
             {navitemsData.map((item, index) => (
               <Link href={item.url} key={index} passHref>
                 <span
@@ -60,13 +63,12 @@ const NavItems: React.FC<Props> = ({ activeItem, isMobile }) => {
                     activeItem === index
                       ? "dark:text-[#37a39a] text-[crimson]"
                       : "dark:text-white text-black"
-                  } text-[18px] px-6 font-Poppins font-[400]`}
+                  } text-[18px] px-6 font-Poppins font-[400] block py-5`}
                 >
                   {item.name}
                 </span>
               </Link>
             ))}
-          </div>
         </div>
       )}
     </>
