@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import NavItems from "../utilis/NavItems";
 import { ThemeSwitcher } from "../utilis/ThemeSwitcher";
 import { HiOutlineMenuAlt3, HiOutlineUserCircle } from "react-icons/hi";
@@ -9,6 +9,12 @@ import { Login } from "../components/Auth/Login";
 import { SignUp } from "../components/Auth/SignUp";
 import { Verification } from "../components/Auth/Verification";
 import { useSelector } from "react-redux";
+import Image from "next/image";
+import avatar from "../../public/assets/Profile.png";
+import { useSession } from "next-auth/react";
+import { useSocialAuthMutation } from "@/redux/features/auth/authApi";
+import toast from "react-hot-toast";
+
 type Props = {
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -17,10 +23,28 @@ type Props = {
   setRoute: (route: string) => void;
 };
 
-const Header: FC<Props> = ({ activeItem, open, setOpen ,route, setRoute }) => {
+const Header: FC<Props> = ({ activeItem, open, setOpen, route, setRoute }) => {
   const [active, setActive] = useState(false);
   const [openSidebar, setOpenSidebar] = useState(false);
-  const {user} = useSelector((state: any) => state.auth);
+  const { user } = useSelector((state: any) => state.auth);
+  const { data } = useSession();
+  const [socialAuth, { isSuccess, error }] = useSocialAuthMutation();
+  useEffect(() => {
+    if (!user) {
+      if (data) {
+        socialAuth({
+          email: data?.user?.email,
+          name: data?.user?.name,
+          avatar: data?.user?.image,
+        });
+      }
+    }
+    if (isSuccess) {
+      toast.success("Login Successfully");
+      setOpen(false);
+    }
+  }, [data, user]);
+
   if (typeof window !== "undefined") {
     window.addEventListener("scroll", () => {
       if (window.scrollY > 85) {
@@ -65,11 +89,26 @@ const Header: FC<Props> = ({ activeItem, open, setOpen ,route, setRoute }) => {
                   onClick={() => setOpenSidebar(true)}
                 />
               </div>
-              <HiOutlineUserCircle
-                size={25}
-                className="hidden 800px:block cursor-pointer dark:text-white text-black"
-                onClick={() => setOpen(true)}
-              />
+              {user ? (
+                <Link href={"/profile"}>
+                  <Image
+                    src={user.avatar ? user.avatar : avatar}
+                    alt="Profile Photo"
+                    width={30}
+                    height={30}
+                    className="w-8 h-8 rounded-full cursor-pointer"
+                    style={{
+                      border: activeItem === 5 ? "2px solid cyan" : "none",
+                    }}
+                  />
+                </Link>
+              ) : (
+                <HiOutlineUserCircle
+                  className="hidden 800px:block cursor-pointer dark:text-white text-black"
+                  size={25}
+                  onClick={() => setOpen(true)}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -96,58 +135,46 @@ const Header: FC<Props> = ({ activeItem, open, setOpen ,route, setRoute }) => {
           </div>
         )}
       </div>
-      {
-        route === "Login" && (
-          <>
-          {
-            open && (
-              <CustomModal
+      {route === "Login" && (
+        <>
+          {open && (
+            <CustomModal
               open={open}
               setOpen={setOpen}
               setRoute={setRoute}
               activeItem={activeItem}
               component={Login}
-              />
-            )
-          }
-          </>
-        )
-      }
-      {
-        route === "Sign-Up" && (
-          <>
-          {
-            open && (
-              <CustomModal
+            />
+          )}
+        </>
+      )}
+      {route === "Sign-Up" && (
+        <>
+          {open && (
+            <CustomModal
               open={open}
               setOpen={setOpen}
               setRoute={setRoute}
               activeItem={activeItem}
               component={SignUp}
-              />
-            )
-          }
-          </>
-        )
-      }
-      
-      {
-        route === "Verification" && (
-          <>
-          {
-            open && (
-              <CustomModal
+            />
+          )}
+        </>
+      )}
+
+      {route === "Verification" && (
+        <>
+          {open && (
+            <CustomModal
               open={open}
               setOpen={setOpen}
               setRoute={setRoute}
               activeItem={activeItem}
               component={Verification}
-              />
-            )
-          }
-          </>
-        )
-      }
+            />
+          )}
+        </>
+      )}
     </div>
   );
 };
