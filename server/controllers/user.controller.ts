@@ -187,7 +187,9 @@ export const updateAccessToken = CatchAsyncError(
       const session = await redis.get(decoded.id);
 
       if (!session) {
-        return next(new ErrorHandler("Please login to access this resources", 400));
+        return next(
+          new ErrorHandler("Please login to access this resources", 400)
+        );
       }
 
       const user = JSON.parse(session);
@@ -271,7 +273,7 @@ interface IUpdateUserBody {
 export const updateUserInfo = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { name, email } = req.body as IUpdateUserBody;
+      const { name } = req.body as IUpdateUserBody;
       const userId = req.user?._id;
 
       if (!userId || typeof userId !== "string") {
@@ -284,17 +286,8 @@ export const updateUserInfo = CatchAsyncError(
         return next(new ErrorHandler("User not found", 404));
       }
 
-      // Check if the email is already in use by another user
-      if (email && email !== user.email) {
-        const emailExist = await userModel.findOne({ email });
-        if (emailExist) {
-          return next(new ErrorHandler("Email already exists", 400));
-        }
-        user.email = email;
-      }
-
       // Update the name if provided
-      if (name) {
+      if (name && user) {
         user.name = name;
       }
 
@@ -456,6 +449,6 @@ export const deleteUser = CatchAsyncError(
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
-      
     }
-  })
+  }
+);
