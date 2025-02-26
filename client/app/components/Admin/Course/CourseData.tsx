@@ -13,9 +13,9 @@ type Props = {
 };
 
 const CourseData: FC<Props> = ({
-  benefits,
+  benefits = [],
   setBenefits,
-  prerequisites,
+  prerequisites = [],
   setPrerequisites,
   active,
   setActive,
@@ -34,8 +34,10 @@ const CourseData: FC<Props> = ({
 
   const handleOptions = () => {
     if (
-      benefits[benefits.length - 1].title !== "" &&
-      prerequisites[prerequisites.length - 1].title !== ""
+      benefits.length > 0 &&
+      prerequisites.length > 0 &&
+      benefits[benefits.length - 1]?.title.trim() !== "" &&
+      prerequisites[prerequisites.length - 1]?.title.trim() !== ""
     ) {
       setActive(active + 1);
     } else {
@@ -50,7 +52,7 @@ const CourseData: FC<Props> = ({
           What are the benefits for students?
         </label>
         <br />
-        {benefits.map((benefit: any, index: number) => (
+        {benefits.map((benefit, index) => (
           <div key={index}>
             <input
               type="text"
@@ -60,11 +62,9 @@ const CourseData: FC<Props> = ({
               placeholder="You will be able to create a full stack application"
               className={`${styles.input} my-2`}
               onChange={(e) => {
-                setBenefits(
-                  benefits.map((b, i) =>
-                    i === index ? { ...b, title: e.target.value } : b
-                  )
-                );
+                const updatedBenefits = [...benefits];
+                updatedBenefits[index] = { ...benefit, title: e.target.value };
+                setBenefits(updatedBenefits);
               }}
             />
           </div>
@@ -77,10 +77,10 @@ const CourseData: FC<Props> = ({
 
       <div>
         <label htmlFor="prerequisites" className={styles.label}>
-          What are the Prerequisites for this course?
+          What are the prerequisites for this course?
         </label>
         <br />
-        {prerequisites.map((prerequisite: any, index: number) => (
+        {prerequisites.map((prerequisite, index) => (
           <div key={index}>
             <input
               type="text"
@@ -90,11 +90,12 @@ const CourseData: FC<Props> = ({
               placeholder="You need basic knowledge of MERN..."
               className={`${styles.input} my-2`}
               onChange={(e) => {
-                setPrerequisites(
-                  prerequisites.map((p, i) =>
-                    i === index ? { ...p, title: e.target.value } : p
-                  )
-                );
+                const updatedPrerequisites = [...prerequisites];
+                updatedPrerequisites[index] = {
+                  ...prerequisite,
+                  title: e.target.value,
+                };
+                setPrerequisites(updatedPrerequisites);
               }}
             />
           </div>
@@ -108,13 +109,13 @@ const CourseData: FC<Props> = ({
       <div className="flex w-full items-center justify-between">
         <div
           className="w-full 800px:w-[180px] flex items-center justify-center h-10 bg-cyan-500 text-white text-center mt-8 rounded cursor-pointer"
-          onClick={() => prevButton()}
+          onClick={prevButton}
         >
           Prev
         </div>
         <div
           className="w-full 800px:w-[180px] flex items-center justify-center h-10 bg-cyan-500 text-white text-center mt-8 rounded cursor-pointer"
-          onClick={() => handleOptions()}
+          onClick={handleOptions}
         >
           Next
         </div>

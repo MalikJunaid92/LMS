@@ -1,6 +1,6 @@
 import { styles } from "@/app/styles/style";
-// import CoursePlayer from "@/app/utils/CoursePlayer";
-// import Ratings from "@/app/utils/Ratings";
+import CoursePlayer from "@/app/utilis/CoursePlayer";
+import Ratings from "@/app/utilis/Ratings";
 import { FC } from "react";
 import { IoCheckmarkDoneOutline } from "react-icons/io5";
 
@@ -36,13 +36,13 @@ const CoursePreview: FC<Props> = ({
   console.log("courseData", courseData);
 
   return (
-    <div className="w-[90%] m-auto py-5 mb-5 text-white">
+    <div className="w-[90%] m-auto py-5 mb-5 text-black dark:text-white">
       <div className="w-full relative">
         <div className="w-full mt-10">
-          {/* <CoursePlayer
+          <CoursePlayer
             videoUrl={courseData?.demoUrl}
             title={courseData?.title}
-          /> */}
+          />
         </div>
         <div className="flex items-center">
           <h1 className="pt-5 text-[25px]">
@@ -91,7 +91,7 @@ const CoursePreview: FC<Props> = ({
           </h1>
           <div className="flex items-center justify-between pt-3">
             <div className="flex items-center">
-              {/* <Ratings rating={0} /> */}
+              <Ratings rating={0} />
               <h5>0 Reviews</h5>
             </div>
             <h5>0 Students</h5>

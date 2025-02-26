@@ -25,10 +25,10 @@ const CourseInformation: FC<Props> = ({
 //     }
 //   }, [data]);
 
-//   const handleSubmit = (e: any) => {
-//     e.preventDefault();
-//     setActive(active + 1);
-//   };
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+    setActive(active + 1);
+  };
 
   const handleFileChange = (e: any) => {
     const file = e.target.files[0];
@@ -72,9 +72,7 @@ const CourseInformation: FC<Props> = ({
 
   return (
     <div className="w-[80%] m-auto mt-24">
-      <form 
-    //   onSubmit={handleSubmit}
-      >
+      <form   onSubmit={handleSubmit}>
         <div>
           <label htmlFor="name" className={styles.label}>
             Course Name

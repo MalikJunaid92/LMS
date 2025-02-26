@@ -10,6 +10,7 @@ import path from "path";
 import ejs from "ejs";
 import { sendMail } from "../utilis/sendMail";
 import NotificationModel from "../models/notificationModel";
+import axios from "axios";
 // upload course
 export const uploadCourse = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -101,27 +102,15 @@ export const getSingleCourse = CatchAsyncError(
 export const getAllCourses = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const isCacheExist = await redis.get("allCourses"); // Check Redis cache
-      if (isCacheExist) {
-        const courses = JSON.parse(isCacheExist);
-        return res.status(200).json({
-          success: true,
-          courses,
-        });
-      } else {
-        // Fetch from MongoDB if not in cache
-        const courses = await CourseModel.find().select(
-          "-courseData.videoUrl -courseData.suggestions -courseData.links -courseData.questions"
-        );
+      // Fetch from MongoDB if not in cache
+      const courses = await CourseModel.find().select(
+        "-courseData.videoUrl -courseData.suggestions -courseData.links -courseData.questions"
+      );
 
-        // Update Redis cache with the newly fetched courses
-        await redis.set("allCourses", JSON.stringify(courses));
-
-        return res.status(200).json({
-          success: true,
-          courses,
-        });
-      }
+      return res.status(200).json({
+        success: true,
+        courses,
+      });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
@@ -375,7 +364,7 @@ export const addReviewReply = CatchAsyncError(
   }
 );
 // get all courses --> only for admin
-export const getAllcourses = CatchAsyncError(
+export const getAdminAllcourses = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       getAllCourseService(res);
@@ -400,6 +389,30 @@ export const deleteCourse = CatchAsyncError(
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
-      
     }
-  })
+  }
+);
+
+// Generate video url
+export const generateVideoUrl = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { videoId } = req.body;
+      const response = await axios.post(
+        `https://dev.vdocipher.com/api/videos/${videoId}/otp`,
+        { ttl: 300 },
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: `Apisecret ${process.env.VDOCIPHER_API_SECRET}`,
+          },
+        }
+      );
+
+      res.json(response.data);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);

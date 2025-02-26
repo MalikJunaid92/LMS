@@ -20,16 +20,18 @@ export const createLayout = CatchAsyncError(
         const myCloud = await cloudinary.v2.uploader.upload(image, {
           folder: "banner",
         });
-
-        await LayoutModel.create({
+        const banner = {
           type: "Banner",
-          image: {
-            public_id: myCloud.public_id,
-            url: myCloud.secure_url,
-          },
-          title,
-          subtitle,
-        });
+          banner: {
+            image: {
+              public_id: myCloud.public_id,
+              url: myCloud.secure_url,
+            },
+            title,
+            subtitle
+          }
+        }
+        await LayoutModel.create(banner);
       }
 
       if (type === "FAQ") {
