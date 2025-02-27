@@ -84,6 +84,7 @@ const CreateCourse = (props: Props) => {
       name: courseInfo.name,
       description: courseInfo.description,
       price: courseInfo.price,
+      categories: courseInfo.categories?.trim() || "General", // Ensure it's not empty
       estimatedPrice: courseInfo.estimatedPrice,
       tags: courseInfo.tags,
       level: courseInfo.level,

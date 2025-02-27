@@ -1,5 +1,5 @@
 import { styles } from "@/app/styles/style";
-// import { useGetHeroDataQuery } from "@/redux/features/layout/layout";
+import { useGetHeroDataQuery } from "@/redux/features/layout/layoutApi";
 import { FC, useEffect, useState } from "react";
 
 type Props = {
@@ -17,13 +17,15 @@ const CourseInformation: FC<Props> = ({
 }) => {
   const [dragging, setDragging] = useState(false);
   const [categories, setCategories] = useState([]);
-//   const { data } = useGetHeroDataQuery("Categories", {});
+  const { data, isLoading, isError } = useGetHeroDataQuery("Category", {});
 
-//   useEffect(() => {
-//     if (data) {
-//       setCategories(data.layout.categories);
-//     }
-//   }, [data]);
+useEffect(() => {
+  if (!isLoading && !isError && data) {
+    console.log("Fetched categories:", data);
+    setCategories(data.layout?.categories || []);
+  }
+}, [data, isLoading, isError]);
+
 
   const handleSubmit = (e: any) => {
     e.preventDefault();

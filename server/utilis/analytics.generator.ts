@@ -10,35 +10,27 @@ export async function generateLast12MonthsData<T extends Document>(
 ): Promise<{ last12Months: MonthData[] }> {
   const last12Months: MonthData[] = [];
   const currentDate = new Date();
-  currentDate.setDate(currentDate.getDate() + 1);
 
   for (let i = 11; i >= 0; i--) {
-    const endDate = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      currentDate.getDate() - i * 28
-    );
-    const startDate = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      currentDate.getDate() - 28
-    );
+    // Get first day of the month
+    const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+    
+    // Get last day of the month
+    const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - i + 1, 0);
+    
+    // Format Month & Year correctly
+    const monthYear = startDate.toLocaleString("default", { month: "short", year: "numeric" });
 
-    const monthYear = endDate.toLocaleString("default", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
+    // Count documents within the month range
     const count = await model.countDocuments({
-      createdAt: {
-        $gte: startDate,
-        $lt: endDate,
-      },
+      createdAt: { $gte: startDate, $lte: endDate },
     });
+
     last12Months.push({
       month: monthYear,
       count: count,
     });
   }
+
   return { last12Months };
-}   
+}
