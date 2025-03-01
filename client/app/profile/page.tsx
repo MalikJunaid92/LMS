@@ -1,7 +1,7 @@
 "use client";
 import { FC, useState } from "react";
 import { useSelector } from "react-redux";
-// import Footer from "../components/Footer/Footer";
+import Footer from "../components/Footer/Footer";
 import Header from "../components/Header";
 import Profile from "../components/Profile/Profile";
 import Protected from "../hooks/useProtected";
@@ -31,7 +31,7 @@ const Page: FC<Props> = (props) => {
           route={route}
         />
       <Profile user={user} />
-      {/* <Footer /> */}
+      <Footer />
       </Protected>
     </div>
   );

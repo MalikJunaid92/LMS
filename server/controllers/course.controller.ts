@@ -225,6 +225,8 @@ export const addAnswer = CatchAsyncError(
       const newAnswer: any = {
         user: req.user,
         answer,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
       // add the answer to the question
       if (!question.questionReplies) {
@@ -236,7 +238,7 @@ export const addAnswer = CatchAsyncError(
         // create a notification for the user
         await NotificationModel.create({
           user: req.user?._id,
-          title: "New Question Reply Recieved",
+          title: "New Review Received",
           message: `You have a new question reply in ${courseContent.title}`,
         });
       } else {
@@ -348,6 +350,8 @@ export const addReviewReply = CatchAsyncError(
       const newReply: any = {
         user: req.user,
         comment,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
       review.commentReplies.push(newReply);
       if (!review.commentReplies) {

@@ -1,13 +1,17 @@
 import CourseDetailsPage from "../../components/Course/CourseDetailsPage";
 
-type Props = {};
+interface PageProps {
+  params: { id: string };
+}
 
-const page = ({ params }: any) => {
+const Page = async ({ params }: PageProps) => {
+  const { id } = params; // Ensure params is correctly structured
+
   return (
     <div>
-      <CourseDetailsPage id={params.id} />
+      <CourseDetailsPage id={id} />
     </div>
   );
 };
 
-export default page;
+export default Page;

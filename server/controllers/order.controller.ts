@@ -100,7 +100,7 @@ export const createOrder = CatchAsyncError(
       } else {
         course.purchased = 1;
       }
-
+      course.purchased = course.purchased + 1;
       await course.save();
 
       newOrder(data, res, next);

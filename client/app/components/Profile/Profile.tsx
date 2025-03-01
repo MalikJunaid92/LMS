@@ -18,9 +18,7 @@ const Profile: FC<Props> = ({ user }) => {
   const [logout, setLogout] = useState(false);
   const [courses, setCourses] = useState<any>([]);
   const { data, isLoading } = useGetUserAllCoursesQuery(undefined, {});
-  const {} = useLogOutQuery(undefined, {
-    skip: !logout ? true : false,
-  });
+  useLogOutQuery(undefined, { skip: !logout });
 
   useEffect(() => {
     if (data) {
@@ -36,15 +34,15 @@ const Profile: FC<Props> = ({ user }) => {
     await signOut();
   };
 
-  if (typeof window !== "undefined") {
-    window.addEventListener("scroll", () => {
-      if (window.scrollY > 85) {
-        setScroll(true);
-      } else {
-        setScroll(false);
-      }
-    });
-  }
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const handleScroll = () => {
+        setScroll(window.scrollY > 85);
+      };
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }
+  }, []);
 
   return (
     <div className="w-[85%] flex mx-auto">
@@ -67,15 +65,9 @@ const Profile: FC<Props> = ({ user }) => {
         {active === 3 && (
           <div className="w-full pl-7 px-2 800px:px-10 800px:pl-8">
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-2 lg:gap-6 xl:grid-cols-3 xl:gap-[35px]">
-              {courses &&
-                courses.map((item: any, index: number) => {
-                  <CourseCard
-                    item={item}
-                    key={index}
-                    // user={user}
-                    isProfile={true}
-                  />;
-                })}
+              {courses.map((item: any, index: number) => (
+                <CourseCard item={item} key={index} isProfile={true} />
+              ))}
             </div>
             {courses.length === 0 && (
               <h1 className="text-center text-[18px] font-Poppins">
