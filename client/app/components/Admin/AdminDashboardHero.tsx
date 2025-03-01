@@ -1,5 +1,5 @@
 import { useState } from "react";
-// import DashboardWidgets from "../../components/Admin/Widgets/DashboardWidgets";
+import DashboardWidgets from "../../components/Admin/Widgets/DashboardWidgets";
 import DashboardHeader from "./DashboardHeader";
 
 
@@ -13,11 +13,11 @@ const AdminDashboardHero = ({isDashboard}: Props) => {
   return (
     <div>
       <DashboardHeader open={open} setOpen={setOpen} />
-      {/* {
+      {
         isDashboard && (
           <DashboardWidgets open={open} />
         )
-      } */}
+      }
     </div>
   );
 };

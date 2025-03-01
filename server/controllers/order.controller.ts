@@ -10,12 +10,26 @@ import { sendMail } from "../utilis/sendMail";
 import NotificationModel from "../models/notificationModel";
 import { redis } from "../utilis/redis";
 import { getAllOrderService, newOrder } from "../services/order.service";
-
+require("dotenv").config();
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 // create order
 export const createOrder = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { courseId, payment_info } = req.body as IOrder;
+
+      if (payment_info) {
+        if ("id" in payment_info) {
+          const paymentIntentId = payment_info.id;
+          const paymentIntent = await stripe.paymentIntents.retrieve(
+            paymentIntentId
+          );
+
+          if (paymentIntent.status !== "succeeded") {
+            return next(new ErrorHandler("Payment failed", 400));
+          }
+        }
+      }
 
       const user = await userModel.findById(req.user?._id);
 
@@ -26,7 +40,7 @@ export const createOrder = CatchAsyncError(
         return next(new ErrorHandler("Course already exists", 400));
       }
 
-      const course:ICourse | null = await CourseModel.findById(courseId);
+      const course: ICourse | null = await CourseModel.findById(courseId);
       if (!course) {
         return next(new ErrorHandler("Course not found", 404));
       }
@@ -69,7 +83,10 @@ export const createOrder = CatchAsyncError(
       }
 
       user?.courses.push(course._id as any);
-      await redis.set(req.user?._id?.toString() as string, JSON.stringify(user));
+      await redis.set(
+        req.user?._id?.toString() as string,
+        JSON.stringify(user)
+      );
       await user?.save();
 
       await NotificationModel.create({
@@ -98,6 +115,40 @@ export const getAllOrders = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       getAllOrderService(res);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
+
+// Send stripe Publishable request
+export const sendStripePublishableKey = CatchAsyncError(
+  async (req: Request, res: Response) => {
+    res.status(200).json({
+      publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
+    });
+  }
+);
+
+// new Payment
+export const newPayment = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const myPayment = await stripe.paymentIntents.create({
+        amount: req.body.amount,
+        currency: "USD",
+        metadata: {
+          company: "E-Learning",
+        },
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      });
+
+      res.status(201).json({
+        success: true,
+        client_secret: myPayment.client_secret,
+      });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }

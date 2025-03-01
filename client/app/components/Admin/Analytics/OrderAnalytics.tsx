@@ -21,9 +21,7 @@ export default function OrdersAnalytics({ isDashboard }: Props) {
   const { data, isLoading, error } = useGetOrdersAnalyticsQuery({});
 
   useEffect(() => {
-    console.log("Full API Response:", data);
-    console.log("Extracted Orders:", data?.orders);
-    console.log("Last 12 Months Data:", data?.orders?.last12Months);
+   
   }, [data]);
 
   if (isLoading) return <Loader />;

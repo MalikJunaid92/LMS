@@ -1,11 +1,11 @@
-// import { useGetUserAllCoursesQuery } from "@/redux/features/courses/coursesApi";
 import { signOut } from "next-auth/react";
 import { FC, useEffect, useState } from "react";
-// import CourseCard from "../Course/CourseCard";
+import CourseCard from "../Course/CourseCard";
 import ChangePassword from "./ChangePassword";
 import ProfileInfo from "./ProfileInfo";
 import SidebarProfile from "./SidebarProfile";
 import { useLogOutQuery } from "@/redux/features/auth/authApi";
+import { useGetUserAllCoursesQuery } from "@/redux/features/courses/coursesApi";
 
 type Props = {
   user: any;
@@ -17,19 +17,19 @@ const Profile: FC<Props> = ({ user }) => {
   const [avatar, setAvatar] = useState(null);
   const [logout, setLogout] = useState(false);
   const [courses, setCourses] = useState<any>([]);
-  // const { data, isLoading } = useGetUserAllCoursesQuery(undefined, {});
+  const { data, isLoading } = useGetUserAllCoursesQuery(undefined, {});
   const {} = useLogOutQuery(undefined, {
     skip: !logout ? true : false,
   });
 
-  // useEffect(() => {
-  //   if (data) {
-  //     const filteredCourses = user.courses
-  //       .map((userCourse: any) => data.courses.find((course: any) => userCourse.id === course.id))
-  //       .filter((course: any) => course !== undefined);
-  //     setCourses(filteredCourses);
-  //   }
-  // }, [data, user.courses]);
+  useEffect(() => {
+    if (data) {
+      const filteredCourses = user.courses
+        .map((userCourse: any) => data.courses.find((course: any) => userCourse.id === course.id))
+        .filter((course: any) => course !== undefined);
+      setCourses(filteredCourses);
+    }
+  }, [data, user.courses]);
 
   const logoutHandler = async () => {
     setLogout(true);
@@ -69,12 +69,12 @@ const Profile: FC<Props> = ({ user }) => {
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-2 lg:gap-6 xl:grid-cols-3 xl:gap-[35px]">
               {courses &&
                 courses.map((item: any, index: number) => {
-                  // <CourseCard
-                  //   item={item}
-                  //   key={index}
-                  //   // user={user}
-                  //   isProfile={true}
-                  // />;
+                  <CourseCard
+                    item={item}
+                    key={index}
+                    // user={user}
+                    isProfile={true}
+                  />;
                 })}
             </div>
             {courses.length === 0 && (

@@ -1,23 +1,23 @@
-import { Poppins } from "next/font/google";
 import type { Config } from "tailwindcss";
 
-export default {
+const config: Config = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  darkMode:['class'],
+  darkMode: ["class"],
   theme: {
     extend: {
       fontFamily: {
-        Poppins: ["var(--font-poppins)"],
-        Josefin: ["var(--font-josefin)"],
+        Poppins: ["var(--font-Poppins)"],
+        Josefin: ["var(--font-Josefin)"],
+        Cursive: ["var(--font-Cursive)"],
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%,var(--tw-gradient-stops))",
+          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
       screens: {
         "1000px": "1000px",
@@ -31,4 +31,5 @@ export default {
     },
   },
   plugins: [],
-} satisfies Config;
+};
+export default config;
