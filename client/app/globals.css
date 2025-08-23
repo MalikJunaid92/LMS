@@ -36,12 +36,43 @@ body {
   color: rgb(var(--foreground-rgb));
 }
 .hero_animation {
-  background-image: linear-gradient(
-    147.92deg,
-    hsla(239, 76%, 53%, 0.456),
-    hsla(0, 0%, 100%, 0) 89.25%
+  background: linear-gradient(
+    135deg,
+    rgba(56, 182, 255, 0.15) 0%,
+    rgba(124, 58, 237, 0.12) 35%,
+    rgba(16, 185, 129, 0.08) 100%
   );
-  animation: changeBackgroundColor 8s infinite alternate;
+  animation: heroFloating 6s ease-in-out infinite alternate;
+}
+
+@keyframes heroFloating {
+  0% {
+    transform: scale(1) rotate(0deg);
+    background: linear-gradient(
+      135deg,
+      rgba(56, 182, 255, 0.15) 0%,
+      rgba(124, 58, 237, 0.12) 35%,
+      rgba(16, 185, 129, 0.08) 100%
+    );
+  }
+  50% {
+    transform: scale(1.05) rotate(2deg);
+    background: linear-gradient(
+      135deg,
+      rgba(124, 58, 237, 0.18) 0%,
+      rgba(56, 182, 255, 0.15) 35%,
+      rgba(16, 185, 129, 0.1) 100%
+    );
+  }
+  100% {
+    transform: scale(1.02) rotate(-1deg);
+    background: linear-gradient(
+      135deg,
+      rgba(16, 185, 129, 0.12) 0%,
+      rgba(56, 182, 255, 0.18) 35%,
+      rgba(124, 58, 237, 0.15) 100%
+    );
+  }
 }
 @keyframes hero_animation {
   0%,
@@ -84,4 +115,115 @@ body {
 
 .shake {
   animation: shake 0.5s ease-in-out;
+}
+
+/* Modern Button Styles */
+.modern-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px 0 rgba(102, 126, 234, 0.3);
+}
+
+.modern-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px 0 rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.modern-button:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px 0 rgba(102, 126, 234, 0.3);
+}
+
+/* Enhanced Search Bar */
+.modern-search {
+  position: relative;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+.modern-search:focus-within {
+  border-color: rgba(102, 126, 234, 0.5);
+  box-shadow: 0 0 30px rgba(102, 126, 234, 0.2);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.modern-search input {
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+.modern-search-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transition: all 0.3s ease;
+  border-radius: 12px;
+}
+
+.modern-search-button:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  transform: scale(1.05);
+}
+
+/* Modern Card Styles */
+.modern-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modern-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border-color: rgba(102, 126, 234, 0.3);
+}
+
+/* Gradient Text */
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Enhanced Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+/* Pulse Animation for CTAs */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+  }
+}
+
+.pulse-animation {
+  animation: pulse 2s infinite;
 }
