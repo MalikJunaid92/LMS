@@ -75,8 +75,8 @@ const Header: FC<Props> = ({ activeItem, open, setOpen, route, setRoute }) => {
       <div
         className={`${
           active
-            ? "dark:bg-opacity-50 dark:bg-gradient-to-b dark:from-gray-900 dark:to-black fixed top-0 left-0 w-full h-[80px] z-[80] border-b dark:border-[#ffffff1c] shadow-xl transition duration-500"
-            : "w-full border-b dark:border-[#ffffff1c] h-[80px] z-[80] dark:shadow"
+            ? "backdrop-blur-md bg-white/80 dark:bg-gray-900/80 fixed top-0 left-0 w-full h-[80px] z-[80] border-b border-gray-200/50 dark:border-gray-700/50 shadow-lg transition-all duration-500"
+            : "w-full border-b border-gray-200/30 dark:border-gray-700/30 h-[80px] z-[80] bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm"
         }`}
       >
         <div className="w-[95%] 800px:w-[92%] m-auto p-2 h-full">
@@ -84,7 +84,7 @@ const Header: FC<Props> = ({ activeItem, open, setOpen, route, setRoute }) => {
             <div>
               <Link
                 href={"/"}
-                className="text-[25px] font-Poppins font-[500] text-black dark:text-white"
+                className="text-[25px] font-Poppins font-[600] bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent hover:scale-105 transition-transform duration-300"
               >
                 E-Learning
               </Link>
