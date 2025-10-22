@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import DashboardWidgets from "../../components/Admin/Widgets/DashboardWidgets";
 import DashboardHeader from "./DashboardHeader";
@@ -7,7 +8,7 @@ type Props = {
   isDashboard?: boolean;
 };
 
-const AdminDashboardHero = ({isDashboard}: Props) => {
+const AdminDashboardHero = ({ isDashboard }: Props) => {
   const [open, setOpen] = useState(false);
 
   return (

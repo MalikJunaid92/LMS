@@ -1,14 +1,16 @@
 "use client";
+
 import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
 import { SessionProvider } from "next-auth/react";
 import { Cedarville_Cursive, Josefin_Sans, Poppins } from "next/font/google";
-import React, { FC, ReactNode } from "react";
+import React, { FC, ReactNode, useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import socketIO from "socket.io-client";
 import Loader from "./components/Loader/Loader";
 import "./globals.css";
 import { Providers } from "./Provider";
 import { ThemeProvider } from "./utilis/Theme-provider";
+
 const ENDPOINT = process.env.NEXT_PUBLIC_SOCKET_SERVER_URI || "";
 const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
 
@@ -30,15 +32,14 @@ const cursive = Cedarville_Cursive({
   variable: "--font-Cursive",
 });
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${poppins.variable} ${josefin.variable} ${cursive.variable} !bg-white bg-no-repeat dark:bg-gradient-to-b dark:from-gray-900 dark:to-black duration-300`}
+        className={`${poppins.variable} ${josefin.variable} ${cursive.variable} 
+        bg-white bg-no-repeat dark:bg-gradient-to-b 
+        dark:from-gray-900 dark:to-black duration-300`}
+        suppressHydrationWarning
       >
         <Providers>
           <SessionProvider>
@@ -54,10 +55,13 @@ export default function RootLayout({
 }
 
 const Custom: FC<{ children: ReactNode }> = ({ children }) => {
-  const { isLoading } = useLoadUserQuery({});
+  const [skip, setSkip] = useState(true);
+  const { isLoading } = useLoadUserQuery({}, { skip });
 
-  React.useEffect(() => {
-    socketId.on("connection", () => {});
+  useEffect(() => {
+    setSkip(false);
+    socketId.on("connection", () => { });
   }, []);
-  return <>{isLoading ? <Loader /> : <>{children}</>}</>;
+
+  return isLoading ? <Loader /> : <>{children}</>;
 };

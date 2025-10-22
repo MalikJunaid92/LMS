@@ -1,3 +1,4 @@
+"use client";
 import { ThemeSwitcher } from "@/app/utilis/ThemeSwitcher";
 import {
   useGetAllNotificationsQuery,
@@ -48,11 +49,18 @@ const DashboardHeader: FC<Props> = ({ open, setOpen }) => {
   }, [data, isSuccess, refetch]);
 
   useEffect(() => {
-    socketId.on("newNotification", (data) => {
+    const socket = socketIO(ENDPOINT, { transports: ["websocket"] });
+
+    socket.on("newNotification", (data) => {
       refetch();
       playNotificationSound();
     });
+
+    return () => {
+      socket.disconnect();
+    };
   }, [refetch]);
+
 
   const handleNotificationStatusChange = async (id: string) => {
     await updateNotificationsStatus(id);

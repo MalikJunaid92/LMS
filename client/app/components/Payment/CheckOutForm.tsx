@@ -7,12 +7,12 @@ import {
   useElements,
   useStripe,
 } from "@stripe/react-stripe-js";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import socketIO from "socket.io-client";
 const ENDPOINT = process.env.NEXT_PUBLIC_SOCKET_SERVER_URI || "";
-const socketId = socketIO(ENDPOINT, {transports: ["websocket"]})
+const socketId = socketIO(ENDPOINT, { transports: ["websocket"] })
 
 type Props = {
   setOpen: any;
@@ -22,12 +22,13 @@ type Props = {
 
 const CheckOutForm = ({ setOpen, data, user }: Props) => {
   const stripe = useStripe();
+  const router = useRouter();
   const elements = useElements();
   const [message, setMessage] = useState<any>("");
   const [loadUser, setLoadUser] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [createOrder, { data: orderData, error }] = useCreateOrderMutation();
-  const {} = useLoadUserQuery({ skip: loadUser ? false : true });
+  const { } = useLoadUserQuery({ skip: loadUser ? false : true });
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -52,36 +53,50 @@ const CheckOutForm = ({ setOpen, data, user }: Props) => {
   useEffect(() => {
     if (orderData) {
       setLoadUser(true);
-      socketId.emit("notification", {
-        title: `New Order Received`,
-        message: `You have a new order in ${data.name}`,
-        userId: user._id,
-      })
-      redirect(`/course-access/${data._id}`);
+      if (socketId) {
+        socketId.emit("notification", {
+          title: `New Order Received`,
+          message: `You have a new order in ${data.name}`,
+          userId: user._id,
+        });
+      }
+      router.push(`/course-access/${data._id}`);
     }
     if (error && "data" in error) {
       const errorMessage = error as any;
       toast.error(errorMessage.data.message);
     }
+    return () => {
+      if (socketId) {
+        socketId.disconnect();
+      }
+    };
   }, [data, error, orderData, user]);
 
   return (
-    <form id="payment-form" onSubmit={handleSubmit}>
-      <LinkAuthenticationElement id="link-authentication-element" />
-      <PaymentElement id="payment-element" />
-      <button disabled={isLoading || !stripe || !elements} id="submit">
-        <span id="button-text" className={`${styles.button} mt-2 !h-[35px]`}>
-          {isLoading ? "Paying..." : "Pay Now"}
-        </span>
-      </button>
-
-      {message && (
-        <div id="payment-message" className="text-[red] font-Poppins pt-2">
-          {message}
+    <div className="max-h-[500px] overflow-y-auto p-2">
+      <form id="payment-form" onSubmit={handleSubmit} className="flex flex-col gap-3">
+        <LinkAuthenticationElement id="link-authentication-element" />
+        <PaymentElement id="payment-element" />
+        <div className="mt-4 sticky bottom-0 bg-white dark:bg-gray-900 py-2">
+          <button
+            disabled={isLoading || !stripe || !elements}
+            id="submit"
+            className={`${styles.button} mt-2 !h-[40px] w-full`}
+          >
+            {isLoading ? "Paying..." : "Pay Now"}
+          </button>
         </div>
-      )}
-    </form>
+
+        {message && (
+          <div id="payment-message" className="text-[red] font-Poppins pt-2">
+            {message}
+          </div>
+        )}
+      </form>
+    </div>
   );
+
 };
 
 export default CheckOutForm;

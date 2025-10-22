@@ -56,7 +56,7 @@ const About = (props: Props) => {
           limit.
         </p>
         <br />
-        <span className="text-[22px] font-Cursive">Abdul Mannan</span>
+        <span className="text-[22px] font-Cursive">Muhammad Junaid Raza</span>
         <h5 className="text-[18px] font-Poppins">
           Founder and CEO of ELearning
         </h5>

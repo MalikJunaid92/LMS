@@ -1,11 +1,11 @@
 import CourseDetailsPage from "../../components/Course/CourseDetailsPage";
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 const Page = async ({ params }: PageProps) => {
-  const { id } = params; // Ensure params is correctly structured
+  const { id } = await params; // ✅ await because it's Promise-based now
 
   return (
     <div>

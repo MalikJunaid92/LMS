@@ -87,7 +87,7 @@ const Footer = (props: Props) => {
               <li>
                 <Link
                   className="text-base text-black dark:text-gray-300 dark:hover:text-white pb-2"
-                  href="https://www.instagram.com/im_abdulmannan/"
+                  href="https://www.instagram.com/malik_junaid._.786/"
                 >
                   Instagram
                 </Link>
@@ -95,7 +95,7 @@ const Footer = (props: Props) => {
               <li>
                 <Link
                   className="text-base text-black dark:text-gray-300 dark:hover:text-white pb-2"
-                  href="https://www.github.com/im-abdulmannan"
+                  href="https://github.com/MalikJunaid92"
                 >
                   github
                 </Link>
@@ -136,7 +136,7 @@ const Footer = (props: Props) => {
         </div>
         <br />
         <p className="text-center text-black dark:text-white">
-        Copyright &copy; {new Date().getFullYear()} ELearning | All Rights Reserved
+          Copyright &copy; {new Date().getFullYear()} ELearning | All Rights Reserved
         </p>
       </div>
       <br />
