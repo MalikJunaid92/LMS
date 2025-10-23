@@ -166,14 +166,14 @@ const AdminSidebar = (props: Props) => {
                   className="!text-5 text-black dark:text-white"
                   sx={{ m: "10px 0 0 0" }}
                 >
-                  {user.name}
+                  {user?.name}
                 </Typography>
                 <Typography
                   variant="h6"
                   className="!text-5 text-black dark:text-white capitalize"
                   sx={{ m: "10px 0 0 0" }}
                 >
-                  - {user.role}
+                  - {user?.role}
                 </Typography>
               </Box>
             </Box>
