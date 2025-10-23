@@ -1,3 +1,6 @@
+"use client";
+export const dynamic = "force-dynamic";
+
 import { styles } from "@/app/styles/style";
 import { useUpdatePasswordMutation } from "@/redux/features/user/userApi";
 import { FC, useEffect, useState } from "react";

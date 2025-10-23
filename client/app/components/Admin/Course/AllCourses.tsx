@@ -1,3 +1,6 @@
+"use client";
+export const dynamic = "force-dynamic";
+
 import { styles } from "@/app/styles/style";
 import {
   useDeleteCourseMutation,
@@ -99,7 +102,7 @@ const AllCourses = (props: Props) => {
       );
   }
 
-  const handleDelete = async() => {
+  const handleDelete = async () => {
     const id = courseId;
     await deleteCourse(id);
   };
@@ -107,8 +110,8 @@ const AllCourses = (props: Props) => {
   return (
     <div className="mt-[120px]">
       {isLoading ? (
-         <Loader /> 
-       ) : ( 
+        <Loader />
+      ) : (
         <Box m="20px">
           <Box
             m="40px 0 0 0"
@@ -193,7 +196,7 @@ const AllCourses = (props: Props) => {
             </Modal>
           )}
         </Box>
-       )} 
+      )}
     </div>
   );
 };

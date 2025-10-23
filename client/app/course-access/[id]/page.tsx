@@ -1,4 +1,6 @@
-'use client'
+"use client";
+export const dynamic = "force-dynamic";
+
 
 import Loader from '@/app/components/Loader/Loader';
 import { useLoadUserQuery } from '@/redux/features/api/apiSlice';

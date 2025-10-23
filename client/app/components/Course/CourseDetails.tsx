@@ -1,4 +1,6 @@
 "use client";
+export const dynamic = "force-dynamic";
+
 import { styles } from "@/app/styles/style";
 import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
 import { Elements } from "@stripe/react-stripe-js";

@@ -1,3 +1,6 @@
+"use client";
+export const dynamic = "force-dynamic";
+
 import React, { FC, useEffect } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -32,7 +35,7 @@ export const SignUp: FC<Props> = ({ setRoute }) => {
       toast.success(message);
       setRoute("Verification");
     }
-    if (error){
+    if (error) {
       if ("data" in error) {
         const errorData = error as any;
         toast.error(errorData.data.message);
@@ -70,9 +73,8 @@ export const SignUp: FC<Props> = ({ setRoute }) => {
             onChange={handleChange}
             id="name"
             placeholder="John Doe"
-            className={`${errors.name && touched.name && "border-red-500"} ${
-              styles.input
-            }`}
+            className={`${errors.name && touched.name && "border-red-500"} ${styles.input
+              }`}
           />
           {errors.name && touched.name && (
             <span className="text-red-500 pt-2 block">{errors.name}</span>
@@ -86,9 +88,8 @@ export const SignUp: FC<Props> = ({ setRoute }) => {
           onChange={handleChange}
           id="email"
           placeholder="example@gmail.com"
-          className={`${errors.email && touched.email && "border-red-500"} ${
-            styles.input
-          }`}
+          className={`${errors.email && touched.email && "border-red-500"} ${styles.input
+            }`}
         />
         {errors.email && touched.email && (
           <span className="text-red-500 pt-2 block">{errors.email}</span>
@@ -102,9 +103,8 @@ export const SignUp: FC<Props> = ({ setRoute }) => {
             onChange={handleChange}
             id="password"
             placeholder="password!@**"
-            className={`${
-              errors.password && touched.password && "border-red-500"
-            } ${styles.input}`}
+            className={`${errors.password && touched.password && "border-red-500"
+              } ${styles.input}`}
           />
           {!show ? (
             <AiOutlineEyeInvisible

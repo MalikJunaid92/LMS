@@ -1,3 +1,6 @@
+"use client";
+export const dynamic = "force-dynamic";
+
 import { styles } from "@/app/styles/style";
 import { FC, useState } from "react";
 import toast from "react-hot-toast";
@@ -135,9 +138,8 @@ const CourseContent: FC<Props> = ({
           return (
             <>
               <div
-                className={`w-full bg-[#cdc8c817] p-4 ${
-                  showSectionInput ? "mt-10" : "mb-0"
-                }`}
+                className={`w-full bg-[#cdc8c817] p-4 ${showSectionInput ? "mt-10" : "mb-0"
+                  }`}
                 key={index}
               >
                 {showSectionInput && (
@@ -145,11 +147,10 @@ const CourseContent: FC<Props> = ({
                     <div className="flex w-full items-center">
                       <input
                         type="text"
-                        className={`text-[20px] ${
-                          item.videoSection === "Untitled Section"
+                        className={`text-[20px] ${item.videoSection === "Untitled Section"
                             ? "w-[170px]"
                             : "w-min"
-                        } font-Poppins cursor-pointer dark:text-white text-black bg-transparent outline-none`}
+                          } font-Poppins cursor-pointer dark:text-white text-black bg-transparent outline-none`}
                         value={item.videoSection}
                         onChange={(e) => {
                           const updatedData = [...courseContentData];
@@ -179,9 +180,8 @@ const CourseContent: FC<Props> = ({
                   )}
                   <div className="flex items-center">
                     <AiOutlineDelete
-                      className={`dark:text-white text-[20px] mr-2 text-black ${
-                        index > 0 ? "cursor-pointer" : "cursor-no-drop"
-                      }`}
+                      className={`dark:text-white text-[20px] mr-2 text-black ${index > 0 ? "cursor-pointer" : "cursor-no-drop"
+                        }`}
                       onClick={() => {
                         if (index > 0) {
                           const updatedData = [...courseContentData];
@@ -272,11 +272,10 @@ const CourseContent: FC<Props> = ({
                             Link {linkIndex + 1}
                           </label>
                           <AiOutlineDelete
-                            className={`${
-                              linkIndex === 0
+                            className={`${linkIndex === 0
                                 ? "cursor-no-drop"
                                 : "cursor-pointer"
-                            } text-black dark:text-white text-[20px]`}
+                              } text-black dark:text-white text-[20px]`}
                             onClick={() =>
                               linkIndex === 0
                                 ? null

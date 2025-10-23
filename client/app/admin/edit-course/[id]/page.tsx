@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import Heading from "@/app/utilis/Heading";
 import EditCourse from "../../../components/Admin/Course/EditCourse";
@@ -7,8 +8,8 @@ import AdminSidebar from "../../../components/Admin/Sidebar/AdminSidebar";
 
 type Props = {};
 
-const page = ({params}: any) => {
-    const id = params.id;
+const page = ({ params }: any) => {
+  const id = params.id;
   return (
     <div>
       <Heading

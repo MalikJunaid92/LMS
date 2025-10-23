@@ -1,10 +1,12 @@
 "use client";
+export const dynamic = "force-dynamic";
+
 import { redirect } from "next/navigation";
 import { FC, useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import {
-    useEditCourseMutation,
-    useGetAllCoursesQuery,
+  useEditCourseMutation,
+  useGetAllCoursesQuery,
 } from "../../../../redux/features/courses/coursesApi";
 import CourseContent from "./CourseContent";
 import CourseData from "./CourseData";

@@ -1,3 +1,6 @@
+"use client";
+export const dynamic = "force-dynamic";
+
 import { signOut } from "next-auth/react";
 import { FC, useEffect, useState } from "react";
 import CourseCard from "../Course/CourseCard";
@@ -47,9 +50,8 @@ const Profile: FC<Props> = ({ user }) => {
   return (
     <div className="w-[85%] flex mx-auto">
       <div
-        className={`w-[60px] 800px:w-[310px] h-[450px] dark:bg-slate-900 bg-[#f5f5f5] bg-opacity-90 border dark:border-[#ffffff1d] border-[#00000012] rounded-[5px] shadow-md dark:shadow-sm mt-20 mb-20 sticky ${
-          scroll ? "top-[120px]" : "top-8"
-        } left-8`}
+        className={`w-[60px] 800px:w-[310px] h-[450px] dark:bg-slate-900 bg-[#f5f5f5] bg-opacity-90 border dark:border-[#ffffff1d] border-[#00000012] rounded-[5px] shadow-md dark:shadow-sm mt-20 mb-20 sticky ${scroll ? "top-[120px]" : "top-8"
+          } left-8`}
       >
         <SidebarProfile
           user={user}

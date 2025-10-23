@@ -1,4 +1,6 @@
 "use client";
+export const dynamic = "force-dynamic";
+
 import { useState } from "react";
 import DashboardWidgets from "../../components/Admin/Widgets/DashboardWidgets";
 import DashboardHeader from "./DashboardHeader";

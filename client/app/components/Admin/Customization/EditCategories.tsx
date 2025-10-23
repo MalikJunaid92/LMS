@@ -1,3 +1,6 @@
+"use client";
+export const dynamic = "force-dynamic";
+
 import { styles } from "@/app/styles/style";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -10,7 +13,7 @@ type Props = {};
 
 const EditCategories = (props: Props) => {
   const [categories, setCategories] = useState<any[]>([]);
-  
+
   const { data, isLoading, refetch } = useGetHeroDataQuery("Category", {  // FIXED: Use "Category" instead of "Categories"
     refetchOnMountOrArgChange: true,
   });
@@ -104,11 +107,10 @@ const EditCategories = (props: Props) => {
             />
           </div>
           <button
-            className={`${styles.button} !w-[100px] !min-h-[40px] !h-[40px] ${
-              categories.length === 0 || categories.some((c) => c.title.trim() === "")
+            className={`${styles.button} !w-[100px] !min-h-[40px] !h-[40px] ${categories.length === 0 || categories.some((c) => c.title.trim() === "")
                 ? "!cursor-not-allowed"
                 : "!cursor-pointer !bg-[#42d383]"
-            } !rounded absolute bottom-12 right-12`}
+              } !rounded absolute bottom-12 right-12`}
             onClick={editCategoriesHandler}
           >
             Save

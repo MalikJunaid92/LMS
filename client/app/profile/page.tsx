@@ -1,4 +1,6 @@
 "use client";
+export const dynamic = "force-dynamic";
+
 import { FC, useState } from "react";
 import { useSelector } from "react-redux";
 import Footer from "../components/Footer/Footer";
@@ -13,7 +15,7 @@ const Page: FC<Props> = (props) => {
   const [open, setOpen] = useState(false);
   const [activeItem, setActiveItem] = useState(5);
   const [route, setRoute] = useState("Login");
-  const {user} = useSelector((state:any) => state.auth);
+  const { user } = useSelector((state: any) => state.auth);
 
   return (
     <div className="min-h-screen">
@@ -30,8 +32,8 @@ const Page: FC<Props> = (props) => {
           setRoute={setRoute}
           route={route}
         />
-      <Profile user={user} />
-      <Footer />
+        <Profile user={user} />
+        <Footer />
       </Protected>
     </div>
   );

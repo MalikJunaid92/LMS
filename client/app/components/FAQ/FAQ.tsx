@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { styles } from "@/app/styles/style";
 import { useGetHeroDataQuery } from "@/redux/features/layout/layoutApi";

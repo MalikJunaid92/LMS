@@ -1,3 +1,6 @@
+"use client";
+export const dynamic = "force-dynamic";
+
 import { styles } from "@/app/styles/style";
 import { Box, Button, Modal } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
@@ -135,10 +138,10 @@ const AllUsers: FC<Props> = ({ isTeam }) => {
   }
 
   const handleSubmit = async () => {
-    await updateUserRole({email, role})
+    await updateUserRole({ email, role })
   }
 
-  const handleDelete = async() => {
+  const handleDelete = async () => {
     const id = userId;
     await deleteUser(id);
   };
@@ -212,8 +215,8 @@ const AllUsers: FC<Props> = ({ isTeam }) => {
             <DataGrid checkboxSelection rows={rows} columns={columns} />
           </Box>
 
-            {active && (
-              <Modal
+          {active && (
+            <Modal
               open={active}
               onClose={() => setActive(!active)}
               aria-labelledby="modal-modal-title"
@@ -248,7 +251,7 @@ const AllUsers: FC<Props> = ({ isTeam }) => {
                 </div>
               </Box>
             </Modal>
-            )}
+          )}
 
           {open && (
             <Modal

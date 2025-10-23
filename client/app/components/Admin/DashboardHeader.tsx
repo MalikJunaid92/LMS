@@ -1,4 +1,6 @@
 "use client";
+export const dynamic = "force-dynamic";
+
 import { ThemeSwitcher } from "@/app/utilis/ThemeSwitcher";
 import {
   useGetAllNotificationsQuery,

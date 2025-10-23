@@ -1,3 +1,6 @@
+"use client";
+export const dynamic = "force-dynamic";
+
 import { useEffect, useState } from "react";
 import CourseCard from "../Course/CourseCard";
 import { useGetUserAllCoursesQuery } from "@/redux/features/courses/coursesApi";

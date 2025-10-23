@@ -1,4 +1,6 @@
 "use client";
+export const dynamic = "force-dynamic";
+
 
 import { styles } from "@/app/styles/style";
 import CoursePlayer from "@/app/utilis/CoursePlayer";

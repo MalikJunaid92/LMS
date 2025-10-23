@@ -1,4 +1,6 @@
 "use client";
+export const dynamic = "force-dynamic";
+
 import { loadStripe } from "@stripe/stripe-js";
 import { useEffect, useState } from "react";
 import Footer from "../Footer/Footer";

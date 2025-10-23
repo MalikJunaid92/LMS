@@ -1,4 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
+"use client";
+export const dynamic = "force-dynamic";
+
 import { styles } from "@/app/styles/style";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -117,19 +120,17 @@ const EditHero = (props: Props) => {
               rows={3}
             />
             <button
-              className={`${
-                styles.button
-              } mt-6 px-6 py-2 rounded bg-gray-300 text-black ${
-                data?.layout?.banner?.title !== title ||
-                data?.layout?.banner?.subtitle !== subtitle ||
-                data?.layout?.banner?.image?.url !== image
+              className={`${styles.button
+                } mt-6 px-6 py-2 rounded bg-gray-300 text-black ${data?.layout?.banner?.title !== title ||
+                  data?.layout?.banner?.subtitle !== subtitle ||
+                  data?.layout?.banner?.image?.url !== image
                   ? "cursor-pointer bg-[#42d383] hover:bg-[#36b374]"
                   : "cursor-not-allowed opacity-50"
-              }`}
+                }`}
               onClick={
                 data?.layout?.banner?.title !== title ||
-                data?.layout?.banner?.subtitle !== subtitle ||
-                data?.layout?.banner?.image?.url !== image
+                  data?.layout?.banner?.subtitle !== subtitle ||
+                  data?.layout?.banner?.image?.url !== image
                   ? handleEdit
                   : undefined
               }

@@ -1,3 +1,6 @@
+"use client";
+export const dynamic = "force-dynamic";
+
 import React, { FC, useEffect } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -62,9 +65,8 @@ export const Login: FC<Props> = ({ setRoute, setOpen }) => {
           onChange={handleChange}
           id="email"
           placeholder="example@gmail.com"
-          className={`${errors.email && touched.email && "border-red-500"} ${
-            styles.input
-          }`}
+          className={`${errors.email && touched.email && "border-red-500"} ${styles.input
+            }`}
         />
         {errors.email && touched.email && (
           <span className="text-red-500 pt-2 block">{errors.email}</span>
@@ -78,9 +80,8 @@ export const Login: FC<Props> = ({ setRoute, setOpen }) => {
             onChange={handleChange}
             id="password"
             placeholder="password!@**"
-            className={`${
-              errors.password && touched.password && "border-red-500"
-            } ${styles.input}`}
+            className={`${errors.password && touched.password && "border-red-500"
+              } ${styles.input}`}
           />
           {!show ? (
             <AiOutlineEyeInvisible

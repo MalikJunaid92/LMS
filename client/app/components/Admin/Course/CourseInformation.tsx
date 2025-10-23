@@ -1,3 +1,6 @@
+"use client";
+export const dynamic = "force-dynamic";
+
 import { styles } from "@/app/styles/style";
 import { useGetHeroDataQuery } from "@/redux/features/layout/layoutApi";
 import { FC, useEffect, useState } from "react";
@@ -19,12 +22,12 @@ const CourseInformation: FC<Props> = ({
   const [categories, setCategories] = useState([]);
   const { data, isLoading, isError } = useGetHeroDataQuery("Category", {});
 
-useEffect(() => {
-  if (!isLoading && !isError && data) {
-    console.log("Fetched categories:", data);
-    setCategories(data.layout?.categories || []);
-  }
-}, [data, isLoading, isError]);
+  useEffect(() => {
+    if (!isLoading && !isError && data) {
+      console.log("Fetched categories:", data);
+      setCategories(data.layout?.categories || []);
+    }
+  }, [data, isLoading, isError]);
 
 
   const handleSubmit = (e: any) => {
@@ -74,7 +77,7 @@ useEffect(() => {
 
   return (
     <div className="w-[80%] m-auto mt-24">
-      <form   onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="name" className={styles.label}>
             Course Name
@@ -234,9 +237,8 @@ useEffect(() => {
           />
           <label
             htmlFor="file"
-            className={`w-full min-h-[10vh] dark:border-white border-[#00000026] p-3 border flex items-center justify-center ${
-              dragging ? "bg-blue-500" : "bg-transparent"
-            }`}
+            className={`w-full min-h-[10vh] dark:border-white border-[#00000026] p-3 border flex items-center justify-center ${dragging ? "bg-blue-500" : "bg-transparent"
+              }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}

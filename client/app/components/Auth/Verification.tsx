@@ -1,3 +1,6 @@
+"use client";
+export const dynamic = "force-dynamic";
+
 import { useActivationMutation } from "@/redux/features/auth/authApi";
 import { styles } from "../../../app/styles/style";
 import React, { FC, useEffect } from "react";
@@ -51,7 +54,7 @@ export const Verification: FC<Props> = ({ setRoute }) => {
       setInvalidError(true);
       return;
     }
-    await activation({ activation_token: token , activation_code : verificationNumber });
+    await activation({ activation_token: token, activation_code: verificationNumber });
   };
   const handleInputChange = (index: number, value: string) => {
     setInvalidError(false);
@@ -80,11 +83,10 @@ export const Verification: FC<Props> = ({ setRoute }) => {
             type="number"
             key={key}
             ref={inputRefs[index]}
-            className={`w-[65px] h-[65px] bg-transparent border-[3px] rounded-[10px] flex items-center text-black dark:text-white justify-center text-[18px] font-Poppins outline-none text-center ${
-              invalidError
+            className={`w-[65px] h-[65px] bg-transparent border-[3px] rounded-[10px] flex items-center text-black dark:text-white justify-center text-[18px] font-Poppins outline-none text-center ${invalidError
                 ? "shake border-red-500"
                 : "dark:border-white border-[#0000004a]"
-            }`}
+              }`}
             placeholder=""
             maxLength={1}
             value={VerifyNumber[key as keyof VerifyNumber]}

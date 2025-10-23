@@ -1,3 +1,6 @@
+"use client";
+export const dynamic = "force-dynamic";
+
 import { styles } from "@/app/styles/style";
 import { useGetOrdersAnalyticsQuery } from "@/redux/features/analytics/analyticsApi";
 import {
@@ -21,7 +24,7 @@ export default function OrdersAnalytics({ isDashboard }: Props) {
   const { data, isLoading, error } = useGetOrdersAnalyticsQuery({});
 
   useEffect(() => {
-   
+
   }, [data]);
 
   if (isLoading) return <Loader />;
@@ -34,9 +37,9 @@ export default function OrdersAnalytics({ isDashboard }: Props) {
   const analyticsData =
     data?.orders?.last12Months && Array.isArray(data.orders.last12Months)
       ? data.orders.last12Months.map((item: any, index: number) => ({
-          name: item?.month || `Month ${index + 1}`,
-          count: item?.count ?? 0,
-        }))
+        name: item?.month || `Month ${index + 1}`,
+        count: item?.count ?? 0,
+      }))
       : [];
 
   if (analyticsData.length === 0) {

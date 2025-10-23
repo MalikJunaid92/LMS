@@ -1,4 +1,6 @@
 "use client";
+export const dynamic = "force-dynamic";
+
 import { useCreateCourseMutation } from "@/redux/features/courses/coursesApi";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";

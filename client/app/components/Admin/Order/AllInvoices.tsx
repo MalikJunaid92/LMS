@@ -1,3 +1,6 @@
+"use client";
+export const dynamic = "force-dynamic";
+
 import { useGetAllCoursesQuery } from "@/redux/features/courses/coursesApi";
 import { useGetAllOrdersQuery } from "@/redux/features/orders/orderApi";
 import { useGetAllUsersQuery } from "@/redux/features/user/userApi";
@@ -48,29 +51,29 @@ const AllInvoices = ({ isDashboard }: Props) => {
     ...(isDashboard
       ? []
       : [
-          { field: "userEmail", headerName: "Email", flex: 1 },
-          { field: "title", headerName: "Course Title", flex: 1 },
-        ]),
+        { field: "userEmail", headerName: "Email", flex: 1 },
+        { field: "title", headerName: "Course Title", flex: 1 },
+      ]),
     { field: "price", headerName: "Price", flex: 0.5 },
     ...(isDashboard
       ? [{ field: "created_at", headerName: "Created At", flex: 0.5 }]
       : [
-          {
-            field: " ",
-            headerName: "Email",
-            flex: 0.2,
-            renderCell: (params: any) => {
-              return (
-                <a href={`mailto:${params.row.userEmail}`}>
-                  <AiOutlineMail
-                    className="dark:text-white text-black"
-                    size={20}
-                  />
-                </a>
-              );
-            },
+        {
+          field: " ",
+          headerName: "Email",
+          flex: 0.2,
+          renderCell: (params: any) => {
+            return (
+              <a href={`mailto:${params.row.userEmail}`}>
+                <AiOutlineMail
+                  className="dark:text-white text-black"
+                  size={20}
+                />
+              </a>
+            );
           },
-        ]),
+        },
+      ]),
   ];
 
   const rows: any = [];
