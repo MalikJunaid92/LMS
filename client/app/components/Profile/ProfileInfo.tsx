@@ -19,7 +19,7 @@ const ProfileInfo: React.FC<Props> = ({ user, avatar }) => {
   const [updateUser, { isSuccess: success, error: updateUserError }] =
     useEditProfileMutation();
   const [loadUser, setLoadUser] = React.useState(false);
-  const {} = useLoadUserQuery(undefined, {
+  const { } = useLoadUserQuery(undefined, {
     skip: loadUser ? false : true,
   });
 
@@ -51,10 +51,10 @@ const ProfileInfo: React.FC<Props> = ({ user, avatar }) => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     if (name !== "") {
-        await updateUser({
-          name: name,
-          email: user.email,
-        });
+      await updateUser({
+        name: name,
+        email: user.email,
+      });
     }
   };
 
@@ -64,7 +64,7 @@ const ProfileInfo: React.FC<Props> = ({ user, avatar }) => {
         <div className="relative">
           <Image
             src={
-              user.avatar || avatar ? user.avatar.url || avatar : avatarDefault
+              user?.avatar || avatar ? user?.avatar.url || avatar : avatarDefault
             }
             alt="Profile Photo"
             width={120}

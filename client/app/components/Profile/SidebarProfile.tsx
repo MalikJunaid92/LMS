@@ -26,14 +26,13 @@ const SidebarProfile: FC<Props> = ({
   return (
     <div className="w-full">
       <div
-        className={`w-full flex items-center px-3 py-4 cursor-pointer ${
-          active === 1 ? "dark:bg-slate-800 bg-white" : "bg-transparent"
-        }`}
+        className={`w-full flex items-center px-3 py-4 cursor-pointer ${active === 1 ? "dark:bg-slate-800 bg-white" : "bg-transparent"
+          }`}
         onClick={() => setActive(1)}
       >
         <Image
           src={
-            user.avatar || avatar ? user.avatar.url || avatar : avatarDefault
+            user?.avatar || avatar ? user?.avatar.url || avatar : avatarDefault
           }
           alt="Profile Photo"
           width={20}
@@ -47,9 +46,8 @@ const SidebarProfile: FC<Props> = ({
       </div>
 
       <div
-        className={`w-full flex items-center px-3 py-4 cursor-pointer ${
-          active === 2 ? "dark:bg-slate-800 bg-white" : "bg-transparent"
-        }`}
+        className={`w-full flex items-center px-3 py-4 cursor-pointer ${active === 2 ? "dark:bg-slate-800 bg-white" : "bg-transparent"
+          }`}
         onClick={() => setActive(2)}
       >
         <RiLockPasswordLine size={20} className="dark:text-white text-black" />
@@ -59,9 +57,8 @@ const SidebarProfile: FC<Props> = ({
       </div>
 
       <div
-        className={`w-full flex items-center px-3 py-4 cursor-pointer ${
-          active === 3 ? "dark:bg-slate-800 bg-white" : "bg-transparent"
-        }`}
+        className={`w-full flex items-center px-3 py-4 cursor-pointer ${active === 3 ? "dark:bg-slate-800 bg-white" : "bg-transparent"
+          }`}
         onClick={() => setActive(3)}
       >
         <SiCoursera size={20} className="dark:text-white text-black" />
@@ -72,9 +69,8 @@ const SidebarProfile: FC<Props> = ({
 
       {user.role === "admin" && (
         <Link
-          className={`w-full flex items-center px-3 py-4 cursor-pointer ${
-            active === 5 ? "dark:bg-slate-800 bg-white" : "bg-transparent"
-          }`}
+          className={`w-full flex items-center px-3 py-4 cursor-pointer ${active === 5 ? "dark:bg-slate-800 bg-white" : "bg-transparent"
+            }`}
           href={"/admin"}
         >
           <MdOutlineAdminPanelSettings
@@ -88,9 +84,8 @@ const SidebarProfile: FC<Props> = ({
       )}
 
       <div
-        className={`w-full flex items-center px-3 py-4 cursor-pointer ${
-          active === 4 ? "dark:bg-slate-800 bg-white" : "bg-transparent"
-        }`}
+        className={`w-full flex items-center px-3 py-4 cursor-pointer ${active === 4 ? "dark:bg-slate-800 bg-white" : "bg-transparent"
+          }`}
         onClick={() => logoutHandler()}
       >
         <AiOutlineLogout size={20} className="dark:text-white text-black" />

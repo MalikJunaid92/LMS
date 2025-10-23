@@ -76,9 +76,8 @@ const AdminSidebar = (props: Props) => {
     <Box
       sx={{
         "& .pro-sidebar-inner": {
-          background: `${
-            theme === "dark" ? "#111C43 !important" : "white !important"
-          }`,
+          background: `${theme === "dark" ? "#111C43 !important" : "white !important"
+            }`,
         },
         "& .pro-icon-wrapper": {
           backgroundColor: "transparent !important",
@@ -151,7 +150,7 @@ const AdminSidebar = (props: Props) => {
                   alt="Profile Photo"
                   width={100}
                   height={100}
-                  src={user.avatar ? user.avatar.url : avatarDefault}
+                  src={user?.avatar ? user?.avatar.url : avatarDefault}
                   style={{
                     cursor: "pointer",
                     borderRadius: "50%",

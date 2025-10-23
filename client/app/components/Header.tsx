@@ -33,7 +33,7 @@ const Header: FC<Props> = ({ activeItem, open, setOpen, route, setRoute }) => {
   const { data } = useSession();
   const [socialAuth, { isSuccess, error }] = useSocialAuthMutation();
   const [logout, setLogout] = useState(false);
-  const {} = useLogOutQuery(undefined, {
+  const { } = useLogOutQuery(undefined, {
     skip: !logout ? true : false,
   });
   useEffect(() => {
@@ -73,11 +73,10 @@ const Header: FC<Props> = ({ activeItem, open, setOpen, route, setRoute }) => {
   return (
     <div className="w-full relative">
       <div
-        className={`${
-          active
+        className={`${active
             ? "dark:bg-opacity-50 dark:bg-gradient-to-b dark:from-gray-900 dark:to-black fixed top-0 left-0 w-full h-[80px] z-[80] border-b dark:border-[#ffffff1c] shadow-xl transition duration-500"
             : "w-full border-b dark:border-[#ffffff1c] h-[80px] z-[80] dark:shadow"
-        }`}
+          }`}
       >
         <div className="w-[95%] 800px:w-[92%] m-auto p-2 h-full">
           <div className="w-full h-[80px] flex items-center justify-between p-3">
@@ -103,7 +102,7 @@ const Header: FC<Props> = ({ activeItem, open, setOpen, route, setRoute }) => {
               {user ? (
                 <Link href={"/profile"}>
                   <Image
-                    src={user.avatar ? user.avatar.url : avatar}
+                    src={user?.avatar ? user?.avatar.url : avatar}
                     alt="Profile Photo"
                     width={30}
                     height={30}
