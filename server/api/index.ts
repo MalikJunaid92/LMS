@@ -20,10 +20,7 @@ app.use(cookieParser());
 // ✅ IMPORTANT: Allow your frontend origin
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "https://your-frontend-domain.vercel.app",
-    ],
+    origin: ["http://localhost:3000", "https://lms-six-gilt.vercel.app/"],
     credentials: true,
   })
 );
@@ -47,5 +44,5 @@ app.use(
 app.use(ErrorMiddleware);
 
 // ✅ Export for Vercel (serverless)
-module.exports = app;
-module.exports.handler = serverless(app);
+export { app };
+export const handler = serverless(app);
