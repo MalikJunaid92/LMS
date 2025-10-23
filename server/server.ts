@@ -1,4 +1,4 @@
-import { app } from "./app";
+import { app } from "./api/index";
 import { initSocketServer } from "./socketServer";
 import { connectDB } from "./utilis/db";
 import cloudinary from "cloudinary";
