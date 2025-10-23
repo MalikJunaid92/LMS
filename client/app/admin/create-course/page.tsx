@@ -1,5 +1,5 @@
-"use client";
 export const dynamic = "force-dynamic";
+"use client";
 
 import Heading from "@/app/utilis/Heading";
 import CreateCourse from "../../components/Admin/Course/CreateCourse";
