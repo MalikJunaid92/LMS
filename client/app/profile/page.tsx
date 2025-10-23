@@ -21,7 +21,7 @@ const Page: FC<Props> = (props) => {
     <div className="min-h-screen">
       <Protected>
         <Heading
-          title={`${user.name} Profile -ELearning`}
+          title={`${user?.name ?? "Profile"} Profile -ELearning`}
           description="ELearning is a platform for students to learn and get help from teachers"
           keywords="Programming, MERN, Typescript, Redux"
         />

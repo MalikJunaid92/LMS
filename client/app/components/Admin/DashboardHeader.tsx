@@ -11,7 +11,6 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 import socketIO from "socket.io-client";
 import { format } from "timeago.js";
 const ENDPOINT = process.env.NEXT_PUBLIC_SOCKET_SERVER_URI || "";
-const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
 
 type Props = {
   open?: boolean;
@@ -25,16 +24,19 @@ const DashboardHeader: FC<Props> = ({ open, setOpen }) => {
   const [updateNotificationsStatus, { isSuccess }] =
     useUpdateNotificationStatusMutation();
   const [notifications, setNotifications] = useState<any>([]);
-  const audioRef = useRef(
-    new Audio(
-      "https://res.cloudinary.com/dasdrngo1/video/upload/v1715355770/notifications/mixkit-bubble-pop-up-alert-notification-2357_wbwviv.wav"
-    )
-  );
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const socketRef = useRef<any>(null);
 
   const playNotificationSound = () => {
-    audioRef.current.play().catch((err) => {
-      console.error("Error: ", err);
-    });
+    try {
+      if (audioRef.current) {
+        audioRef.current.play().catch((err: any) => {
+          console.error("Error playing notification sound:", err);
+        });
+      }
+    } catch (err) {
+      console.error("Audio play failed:", err);
+    }
   };
 
   useEffect(() => {
@@ -47,19 +49,43 @@ const DashboardHeader: FC<Props> = ({ open, setOpen }) => {
     if (isSuccess) {
       refetch();
     }
-    audioRef.current.load();
+    // Initialize audio element on client side if not already created
+    if (typeof window !== "undefined") {
+      if (!audioRef.current) {
+        audioRef.current = new Audio(
+          "https://res.cloudinary.com/dasdrngo1/video/upload/v1715355770/notifications/mixkit-bubble-pop-up-alert-notification-2357_wbwviv.wav"
+        );
+      }
+      // attempt to load the audio if available
+      try {
+        audioRef.current.load();
+      } catch (err) {
+        // ignore load errors in non-browser environments
+      }
+    }
   }, [data, isSuccess, refetch]);
 
   useEffect(() => {
-    const socket = socketIO(ENDPOINT, { transports: ["websocket"] });
+    // Initialize socket client only on the browser
+    if (typeof window === "undefined") return;
 
-    socket.on("newNotification", (data) => {
-      refetch();
-      playNotificationSound();
-    });
+    try {
+      socketRef.current = socketIO(ENDPOINT, { transports: ["websocket"] });
+
+      socketRef.current.on("newNotification", (data: any) => {
+        refetch();
+        playNotificationSound();
+      });
+    } catch (err) {
+      console.error("Socket init error:", err);
+    }
 
     return () => {
-      socket.disconnect();
+      try {
+        socketRef.current?.disconnect();
+      } catch (err) {
+        // ignore
+      }
     };
   }, [refetch]);
 

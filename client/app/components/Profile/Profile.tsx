@@ -24,13 +24,15 @@ const Profile: FC<Props> = ({ user }) => {
   useLogOutQuery(undefined, { skip: !logout });
 
   useEffect(() => {
+    if (!user) return;
     if (data) {
-      const filteredCourses = user.courses
+      const userCourses = Array.isArray(user.courses) ? user.courses : [];
+      const filteredCourses = userCourses
         .map((userCourse: any) => data.courses.find((course: any) => userCourse.id === course.id))
         .filter((course: any) => course !== undefined);
       setCourses(filteredCourses);
     }
-  }, [data, user.courses]);
+  }, [data, user]);
 
   const logoutHandler = async () => {
     setLogout(true);
