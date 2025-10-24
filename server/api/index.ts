@@ -30,9 +30,14 @@ app.use(express.json({ limit: "50mb" }));
 app.use(cookieParser());
 
 // ✅ Allow frontend origin
+const allowedOrigins = [
+  "http://localhost:3000",
+  process.env.CLIENT_URL || process.env.NEXT_PUBLIC_CLIENT_URL || "",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://lms-six-gilt.vercel.app"],
+    origin: allowedOrigins,
     credentials: true,
   })
 );

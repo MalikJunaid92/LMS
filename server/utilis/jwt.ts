@@ -11,30 +11,30 @@ interface ITokenOptions {
   secure?: boolean;
 }
 
-  // Parse environment variables with fallback values
-  export const accessTokenExpire = parseInt(
-    process.env.ACCESS_TOKEN_EXPIRE || "300",
-    10
-  );
-  export const refreshTokenExpire = parseInt(
-    process.env.REFRESH_TOKEN_EXPIRE || "1200",
-    10
-  );
+// Parse environment variables with fallback values
+export const accessTokenExpire = parseInt(
+  process.env.ACCESS_TOKEN_EXPIRE || "300",
+  10
+);
+export const refreshTokenExpire = parseInt(
+  process.env.REFRESH_TOKEN_EXPIRE || "1200",
+  10
+);
 
-  // Options for cookies
- export const accessTokenOptions: ITokenOptions = {
-    expires: new Date(Date.now() + accessTokenExpire * 60 * 60 * 1000),
-    maxAge: accessTokenExpire * 60 * 60 * 1000,
-    httpOnly: true,
-    sameSite: "lax",
-  };
+// Options for cookies
+export const accessTokenOptions: ITokenOptions = {
+  expires: new Date(Date.now() + accessTokenExpire * 60 * 60 * 1000),
+  maxAge: accessTokenExpire * 60 * 60 * 1000,
+  httpOnly: true,
+  sameSite: "lax",
+};
 
-  export const refreshTokenOptions: ITokenOptions = {
-    expires: new Date(Date.now() + refreshTokenExpire * 30 * 24 * 60 * 60 * 1000),
-    maxAge: refreshTokenExpire * 30 * 24 * 60 * 60 * 1000,
-    httpOnly: true,
-    sameSite: "lax",
-  };
+export const refreshTokenOptions: ITokenOptions = {
+  expires: new Date(Date.now() + refreshTokenExpire * 30 * 24 * 60 * 60 * 1000),
+  maxAge: refreshTokenExpire * 30 * 24 * 60 * 60 * 1000,
+  httpOnly: true,
+  sameSite: "lax",
+};
 
 export const sendToken = (
   user: IUser,
@@ -45,13 +45,27 @@ export const sendToken = (
   const refreshToken = user.singRefreshToken();
 
   // Upload session to Redis
-    const typedUser = user as IUser;
-    redis.set((typedUser._id as string).toString(), JSON.stringify(typedUser));
+  const typedUser = user as IUser;
+  redis.set((typedUser._id as string).toString(), JSON.stringify(typedUser));
 
   // Only set secure to true in production
   if (process.env.NODE_ENV === "production") {
     accessTokenOptions.secure = true;
     refreshTokenOptions.secure = true;
+
+    // For cross-site cookies (frontend and backend on different domains),
+    // SameSite must be 'none' and Secure must be true. Allow overriding cookie domain
+    // via COOKIE_DOMAIN environment variable if needed.
+    accessTokenOptions.sameSite = "none";
+    refreshTokenOptions.sameSite = "none";
+
+    const cookieDomain = process.env.COOKIE_DOMAIN;
+    if (cookieDomain) {
+      // @ts-ignore - add domain to options for express res.cookie
+      (accessTokenOptions as any).domain = cookieDomain;
+      // @ts-ignore
+      (refreshTokenOptions as any).domain = cookieDomain;
+    }
   }
 
   // Set cookies
