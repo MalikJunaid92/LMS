@@ -16,7 +16,7 @@ import layoutRouter from "../routes/layout.route";
 
 dotenv.config();
 
-// Cloudinary config
+// ✅ Cloudinary config
 cloudinary.v2.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.CLOUD_API_KEY,
@@ -25,31 +25,33 @@ cloudinary.v2.config({
 
 const app = express();
 
-// Middleware
+// ✅ Middleware
 app.use(express.json({ limit: "50mb" }));
 app.use(cookieParser());
 
 // ✅ Allow frontend origin
 const allowedOrigins = [
   "http://localhost:3000",
-  process.env.CLIENT_URL || process.env.NEXT_PUBLIC_CLIENT_URL || "",
-].filter(Boolean);
+  "https://lms-six-gilt.vercel.app", // your deployed frontend
+];
 
 app.use(
   cors({
     origin: allowedOrigins,
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   })
 );
 
-// Connect DB
+// ✅ Connect DB
 connectDB();
 
-// Routes
+// ✅ Health check route
 app.get("/", (req: Request, res: Response) => {
   res.send("✅ Backend running successfully on Vercel!");
 });
 
+// ✅ Routes
 app.use(
   "/api/v1",
   userRouter,
@@ -60,7 +62,7 @@ app.use(
   layoutRouter
 );
 
-// Global error handler
+// ✅ Global error handler
 app.use(ErrorMiddleware);
 
 // ✅ Export only serverless function (no server.listen)
